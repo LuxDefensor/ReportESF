@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="tipSelectAll.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="tipPresets.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>210, 17</value>
-  </metadata>
   <metadata name="ilTree.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>129, 17</value>
   </metadata>
@@ -131,7 +125,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAB8
-        DQAAAk1TRnQBSQFMAgEBDgEAARABAAEQAQABEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DQAAAk1TRnQBSQFMAgEBDgEAASABAAEgAQABEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAAUADAAEBAQABCAYAARAYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -191,7 +185,138 @@
         AT4DAAEoAwABQAMAAUADAAEBAQABAQYAAQIWAAP//wD/AAMACw==
 </value>
   </data>
+  <metadata name="tipSelectAll.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <metadata name="tipPresets.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>210, 17</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAMDAAAAEAGACoHAAAFgAAACgAAAAwAAAAYAAAAAEAGAAAAAAAgBwAAAAAAAAAAAAAAAAAAAAA
+        AADAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlicS6k0S6k0S6k3AlifAlif/////////////////////////////////////////////
+        ///////////////////////////////////////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlicS6k0S6k0S6k3/////////
+        //////////////////////////////////////////////////8SEuoSEuoSEur////////AlifAlifA
+        lifAlifAlifAlifAlifAlicS6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S
+        6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k3/////////////////////////////////////////////////
+        //8SEuoSEuoSEur////////AlifAlifAlifAlifAlifAlifAlifAlicS6k0S6k0S6k0S6k0S6k0S6k0S
+        6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k0S6k3/////////////////
+        //////////////////////////////////8SEuoSEuoSEur////////AlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlicS6k0S
+        6k0S6k3/////////////////////////////////////////////////////////////////////////
+        ///////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlicS6k0S6k0S6k3AlifAlif/////////////////////////////////////////////
+        ///////////////////////////////////////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlif/////////////
+        ///////////////////////////////////////////////////////////////////////AlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlif///8RExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMR
+        ExMRExMRExMRExMRExP////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlif/////////////////////////////
+        ///////////////////////////////////////////////////////AlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lif///8RExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMR
+        ExP////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlif/////////////////////////////////////////////
+        ///////////////////////////////////////AlifAlifAlifAlifAlifAlifAlifAlifAlicS6k0S
+        6k0S6k0S6k0S6k3AlifAlifAlifAlicS6k0S6k0S6k0S6k0S6k3AlifAlifAlifAlif///8RExMRExMR
+        ExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExP////AlifAlifA
+        lifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlicS6k3AlifAlicS6k3AlifAlifAlifAlifA
+        licS6k3AlifAlifAlif/////////////////////////////////////////////////////////////
+        ///////////////////////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifA
+        lifAlifAlicS6k3AlifAlifAlifAlifAlicS6k3AlifAlifAlif/////////////////////////////
+        ///////////////////////////////////////////////////////AlifAlifAlifAlifAlifAlifA
+        lifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlicS6k3AlifAlifA
+        lif/////////////////////////////////////////////////////////////////////////////
+        ///////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlicS6k3AlifAlifAlif///8RExMRExMRExMRExMRExMRExMRExMRExMRExMRExMR
+        ExMRExMRExMRExMRExMRExMRExMRExMRExP////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlif/////////////
+        ///////////////////////////////////////////////////////////////////////AlifAlifA
+        lifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        licS6k3AlifAlifAlif///8RExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMR
+        ExMRExMRExMRExMRExP////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlif/////////////////////////////
+        ///////////////////////////////////////////////////////AlifAlifAlifAlifAlifAlifA
+        lifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifA
+        lif///8RExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMRExMR
+        ExP////AlifAlifAlifAlifAlifAlifAlifAlicS6k0S6k0S6k0S6k3AlifAlifAlifAlifAlifAlicS
+        6k0S6k0S6k0S6k0S6k3AlifAlifAlifAlif/////////////////////////////////////////////
+        ///////////////////////////////////////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifA
+        lifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlifAlif/////////////
+        ///////////////////////////////////////////////////////////////////////AlifAlifA
+        lifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifA
+        lifAlifAlifAlifAlif/////////////////////////////////////////////////////////////
+        ///////////////////////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifA
+        lifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlifAlif/////////////////////////////
+        ///////////////////////////////////////////////////////AlifAlifAlifAlifAlifAlifA
+        lifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlifA
+        lif/////////////////////////////////////////////////////////////////////////////
+        ///////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifAlifAlifAlifAlifAlifAlifAlicS6k3A
+        lifAlifAlifAlifAlicS6k3AlifAlifAlif///8mJSEmJSEmJSEmJSEmJSEmJSEmJSEmJSEmJSEmJSEm
+        JSEmJSEmJSEmJSEmJSEmJSEmJSEmJSEmJSH////AlifAlifAlifAlifAlifAlifAlifAlicS6k3AlifA
+        lifAlifAlifAlicS6k3AlifAlicS6k3AlifAlifAlifAlifAlicS6k3AlifAlifAlif/////////////
+        ///////////////////////////////////////////////////////////////////////AlifAlifA
+        lifAlifAlifAlifAlifAlifAlicS6k0S6k0S6k0S6k0S6k3AlifAlifAlifAlicS6k0S6k0S6k0S6k0S
+        6k3AlifAlifAlifAlif///8f09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf
+        09Mf09Mf09Mf09Mf09P////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlif/////////////////////////////
+        ///////////////////////////////////////////////////////AlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lif///8f09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf09Mf
+        09P////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlif/////////////////////////////////////////////
+        ///////////////////////////////////////AlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifAlifA
+        lifAlifAlifAlifAlicAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+</value>
+  </data>
 </root>

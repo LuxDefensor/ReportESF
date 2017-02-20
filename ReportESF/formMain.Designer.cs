@@ -37,7 +37,12 @@
             this.treePoints = new System.Windows.Forms.TreeView();
             this.ilTree = new System.Windows.Forms.ImageList(this.components);
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.btn2Excel = new System.Windows.Forms.Button();
+            this.lstReports = new System.Windows.Forms.ListBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.btnFindNext = new System.Windows.Forms.Button();
+            this.btnSearch = new System.Windows.Forms.Button();
             this.btnDeselectAll = new System.Windows.Forms.Button();
             this.btnSelectAll = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
@@ -46,16 +51,15 @@
             this.txtDateFrom = new System.Windows.Forms.TextBox();
             this.calTill = new System.Windows.Forms.MonthCalendar();
             this.calFrom = new System.Windows.Forms.MonthCalendar();
-            this.tipSelectAll = new System.Windows.Forms.ToolTip(this.components);
             this.lstPresets = new System.Windows.Forms.ListBox();
-            this.tipPresets = new System.Windows.Forms.ToolTip(this.components);
-            this.btnSavePreset = new System.Windows.Forms.Button();
             this.panel5 = new System.Windows.Forms.Panel();
             this.btnDeletePreset = new System.Windows.Forms.Button();
-            this.btnSearch = new System.Windows.Forms.Button();
-            this.btnFindNext = new System.Windows.Forms.Button();
+            this.btnSavePreset = new System.Windows.Forms.Button();
+            this.tipSelectAll = new System.Windows.Forms.ToolTip(this.components);
+            this.tipPresets = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -149,12 +153,50 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.btn2Excel);
+            this.panel2.Controls.Add(this.lstReports);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(335, 243);
             this.panel2.Name = "panel2";
             this.tableLayoutPanel1.SetRowSpan(this.panel2, 2);
             this.panel2.Size = new System.Drawing.Size(417, 311);
             this.panel2.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 8);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(90, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Выберите отчёт:";
+            // 
+            // btn2Excel
+            // 
+            this.btn2Excel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn2Excel.Font = new System.Drawing.Font("Wingdings", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.btn2Excel.ForeColor = System.Drawing.Color.Green;
+            this.btn2Excel.Location = new System.Drawing.Point(372, 269);
+            this.btn2Excel.Name = "btn2Excel";
+            this.btn2Excel.Size = new System.Drawing.Size(38, 36);
+            this.btn2Excel.TabIndex = 7;
+            this.btn2Excel.Text = "2";
+            this.tipSelectAll.SetToolTip(this.btn2Excel, "Выгрузить отчёт в Excel");
+            this.btn2Excel.UseVisualStyleBackColor = true;
+            // 
+            // lstReports
+            // 
+            this.lstReports.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstReports.FormattingEnabled = true;
+            this.lstReports.Items.AddRange(new object[] {
+            "Часовки за период"});
+            this.lstReports.Location = new System.Drawing.Point(3, 28);
+            this.lstReports.Name = "lstReports";
+            this.lstReports.Size = new System.Drawing.Size(363, 277);
+            this.lstReports.TabIndex = 0;
             // 
             // panel3
             // 
@@ -168,6 +210,30 @@
             this.panel3.Size = new System.Drawing.Size(44, 234);
             this.panel3.TabIndex = 2;
             this.tipSelectAll.SetToolTip(this.panel3, "Новый поиск");
+            // 
+            // btnFindNext
+            // 
+            this.btnFindNext.Font = new System.Drawing.Font("Wingdings", 18.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.btnFindNext.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnFindNext.Location = new System.Drawing.Point(4, 137);
+            this.btnFindNext.Name = "btnFindNext";
+            this.btnFindNext.Size = new System.Drawing.Size(38, 36);
+            this.btnFindNext.TabIndex = 3;
+            this.btnFindNext.Text = "К";
+            this.tipSelectAll.SetToolTip(this.btnFindNext, "Результаты поиска");
+            this.btnFindNext.UseVisualStyleBackColor = true;
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.Font = new System.Drawing.Font("Webdings", 18.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.btnSearch.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnSearch.Location = new System.Drawing.Point(4, 95);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(38, 36);
+            this.btnSearch.TabIndex = 2;
+            this.btnSearch.Text = "L";
+            this.tipSelectAll.SetToolTip(this.btnSearch, "Поиск");
+            this.btnSearch.UseVisualStyleBackColor = true;
             // 
             // btnDeselectAll
             // 
@@ -208,6 +274,7 @@
             // 
             // btnSettings
             // 
+            this.btnSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.btnSettings.Font = new System.Drawing.Font("Webdings", 19F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
             this.btnSettings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -236,12 +303,14 @@
             // calTill
             // 
             this.calTill.Location = new System.Drawing.Point(202, 15);
+            this.calTill.MaxSelectionCount = 1;
             this.calTill.Name = "calTill";
             this.calTill.TabIndex = 1;
             // 
             // calFrom
             // 
             this.calFrom.Location = new System.Drawing.Point(20, 15);
+            this.calFrom.MaxSelectionCount = 1;
             this.calFrom.Name = "calFrom";
             this.calFrom.TabIndex = 0;
             // 
@@ -253,25 +322,8 @@
             this.lstPresets.Name = "lstPresets";
             this.lstPresets.Size = new System.Drawing.Size(276, 114);
             this.lstPresets.TabIndex = 4;
-            this.tipPresets.SetToolTip(this.lstPresets, "Двойной щелчок - загрузить набор");
-            // 
-            // tipPresets
-            // 
-            this.tipPresets.IsBalloon = true;
-            this.tipPresets.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
-            this.tipPresets.ToolTipTitle = "Сохранённые наборы точек";
-            // 
-            // btnSavePreset
-            // 
-            this.btnSavePreset.Font = new System.Drawing.Font("Wingdings", 18.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
-            this.btnSavePreset.ForeColor = System.Drawing.Color.Green;
-            this.btnSavePreset.Location = new System.Drawing.Point(4, 3);
-            this.btnSavePreset.Name = "btnSavePreset";
-            this.btnSavePreset.Size = new System.Drawing.Size(38, 36);
-            this.btnSavePreset.TabIndex = 5;
-            this.btnSavePreset.Text = "<";
-            this.tipSelectAll.SetToolTip(this.btnSavePreset, "Сохранить выбранные точки в наборе");
-            this.btnSavePreset.UseVisualStyleBackColor = true;
+            this.tipPresets.SetToolTip(this.lstPresets, "Двойной щелчок - загрузить набор\r\n\r\nВ именах наборов НЕЛЬЗЯ использовать символы:" +
+        "\r\n* . ? [ ] / \\ | %");
             // 
             // panel5
             // 
@@ -295,29 +347,23 @@
             this.tipSelectAll.SetToolTip(this.btnDeletePreset, "Удалить набор из списка");
             this.btnDeletePreset.UseVisualStyleBackColor = true;
             // 
-            // btnSearch
+            // btnSavePreset
             // 
-            this.btnSearch.Font = new System.Drawing.Font("Webdings", 18.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
-            this.btnSearch.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnSearch.Location = new System.Drawing.Point(4, 95);
-            this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(38, 36);
-            this.btnSearch.TabIndex = 2;
-            this.btnSearch.Text = "L";
-            this.tipSelectAll.SetToolTip(this.btnSearch, "Отменить всё");
-            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSavePreset.Font = new System.Drawing.Font("Wingdings", 18.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.btnSavePreset.ForeColor = System.Drawing.Color.Green;
+            this.btnSavePreset.Location = new System.Drawing.Point(4, 3);
+            this.btnSavePreset.Name = "btnSavePreset";
+            this.btnSavePreset.Size = new System.Drawing.Size(38, 36);
+            this.btnSavePreset.TabIndex = 5;
+            this.btnSavePreset.Text = "<";
+            this.tipSelectAll.SetToolTip(this.btnSavePreset, "Сохранить выбранные точки в наборе");
+            this.btnSavePreset.UseVisualStyleBackColor = true;
             // 
-            // btnFindNext
+            // tipPresets
             // 
-            this.btnFindNext.Font = new System.Drawing.Font("Wingdings", 18.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
-            this.btnFindNext.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnFindNext.Location = new System.Drawing.Point(4, 137);
-            this.btnFindNext.Name = "btnFindNext";
-            this.btnFindNext.Size = new System.Drawing.Size(38, 36);
-            this.btnFindNext.TabIndex = 3;
-            this.btnFindNext.Text = "К";
-            this.tipSelectAll.SetToolTip(this.btnFindNext, "Результаты поиска");
-            this.btnFindNext.UseVisualStyleBackColor = true;
+            this.tipPresets.IsBalloon = true;
+            this.tipPresets.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.tipPresets.ToolTipTitle = "Сохранённые наборы точек";
             // 
             // formMain
             // 
@@ -325,11 +371,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(755, 557);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "formMain";
             this.Text = "Выгрузки из <Энергосферы>";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
@@ -364,6 +413,9 @@
         private System.Windows.Forms.Button btnDeletePreset;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Button btnFindNext;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btn2Excel;
+        private System.Windows.Forms.ListBox lstReports;
     }
 }
 

@@ -58,8 +58,10 @@
             this.txtDetails.Multiline = true;
             this.txtDetails.Name = "txtDetails";
             this.txtDetails.ReadOnly = true;
+            this.txtDetails.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtDetails.Size = new System.Drawing.Size(404, 267);
             this.txtDetails.TabIndex = 2;
+            this.txtDetails.Visible = false;
             // 
             // btnOK
             // 

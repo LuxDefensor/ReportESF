@@ -33,7 +33,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -71,9 +77,16 @@
     <Compile Include="formSettings.Designer.cs">
       <DependentUpon>formSettings.cs</DependentUpon>
     </Compile>
+    <Compile Include="formProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="formProgress.designer.cs">
+      <DependentUpon>formProgress.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="XLSExport.cs" />
     <EmbeddedResource Include="formError.resx">
       <DependentUpon>formError.cs</DependentUpon>
     </EmbeddedResource>
@@ -85,6 +98,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="formSettings.resx">
       <DependentUpon>formSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="formProgress.resx">
+      <DependentUpon>formProgress.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -114,6 +130,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\UncheckAll.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AppIcon.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AppIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

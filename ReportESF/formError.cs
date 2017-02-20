@@ -40,11 +40,13 @@ namespace ReportESF
             {
                 this.Height = defaultHeight;
                 btnDetails.Text = "Подробно";
+                txtDetails.Visible = false;
             }
             else
             {
                 this.Height = expandedHeight;
                 btnDetails.Text = "Скрыть";
+                txtDetails.Visible = true;
             }
             expanded = !expanded;
         }

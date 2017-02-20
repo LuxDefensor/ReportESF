@@ -25,6 +25,7 @@ namespace ReportESF
                 lines[1] = "database=askue_stavropolenergo";
                 lines[2] = "user=unknown";
                 lines[3] = "password=password";
+                lines[4] = "1";
                 File.WriteAllLines(fileName, lines);
             }
         }
@@ -85,8 +86,11 @@ namespace ReportESF
         public static string ErrorInfo(Exception ex, string place)
         {
             DateTime errorTime = DateTime.Now;
-            string ErrorPreface = "Нижеследующий текст необходимо отправить разработчику по электронной почте";
-            StringBuilder result = new StringBuilder(1024);
+            string ErrorPreface = "Нижеследующий текст необходимо отправить разработчику по электронной почте" +
+                Environment.NewLine + "staskue@stavre.elektra.ru" + Environment.NewLine +
+                "телефон: 8(8793) 36-34-08" + Environment.NewLine +
+                "         23-79";
+            StringBuilder result = new StringBuilder(2048);
             result.AppendLine(ErrorPreface);
             result.AppendLine();
             result.AppendLine("Computer name = " + Environment.MachineName);

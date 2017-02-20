@@ -14,6 +14,7 @@ namespace ReportESF
     public partial class formMain: Form
     {
         private DataModel d;
+        private XLSExport xl;
         private List<string> selected;
         private bool processChecks = true;
         private char[] invalidChars = Path.GetInvalidFileNameChars();
@@ -26,6 +27,7 @@ namespace ReportESF
             selected = new List<string>();
             found = new List<TreeNode>();
             d = new DataModel();
+            xl = new XLSExport();
             this.Load += FormMain_Load;
             calFrom.DateChanged += CalFrom_DateChanged;
             calTill.DateChanged += CalTill_DateChanged;
@@ -37,7 +39,30 @@ namespace ReportESF
             btnDeletePreset.Click += BtnDeletePreset_Click;
             btnSearch.Click += BtnSearch_Click;
             btnFindNext.Click += BtnFindNext_Click;
+            btn2Excel.Click += Btn2Excel_Click;
             lstPresets.DoubleClick += LstPresets_DoubleClick;
+        }
+
+        private void Btn2Excel_Click(object sender, EventArgs e)
+        {
+            if (calFrom.SelectionStart <= calTill.SelectionStart)
+            {
+                if (lstReports.SelectedIndex >= 0)
+                {
+                    if (selected.Count > 0)
+                    {
+                        this.Cursor = Cursors.WaitCursor;
+                        switch (lstReports.SelectedIndex)
+                        {
+                            case 0: // hour values
+                                xl.OutputHours(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                break;
+
+                        }
+                        this.Cursor = Cursors.Default;
+                    }
+                }
+            }
         }
 
         private void BtnFindNext_Click(object sender, EventArgs e)
@@ -76,7 +101,7 @@ namespace ReportESF
             List<TreeNode> result = new List<TreeNode>();
             foreach (TreeNode node in root.Nodes)
             {
-                if (node.Text.Contains(criterion))
+                if (node.Text.ToLower().Contains(criterion.ToLower()))
                 {
                     result.Add(node);
                 }

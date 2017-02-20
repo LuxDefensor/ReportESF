@@ -81,7 +81,8 @@ namespace ReportESF
             cs = csb.ConnectionString;
         }
 
-        public List<int> GetRoots()
+        #region Tree operations
+        public List<int> GetRoots_deprecated()
         {
             List<int> result = new List<int>();
             using (SqlConnection cn = new SqlConnection(cs))
@@ -109,6 +110,27 @@ namespace ReportESF
                 }
             }
             return result;
+        }
+
+        public List<int> GetRoots()
+        {
+            List<int> result = new List<int>();
+            try
+            {
+                string roots = Settings.GetSetting("roots");
+                string[] ids = roots.Split(';');
+                result.AddRange(ids.Select<string, int>(s => int.Parse(s.Trim())));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                string details = Settings.ErrorInfo(ex, "DataModel.GetRoots");
+                formError err = new formError("Ошибка при получении списка корней",
+                    "Ошибка!",
+                    details);
+                err.ShowDialog();
+                return new List<int>(new int[] { 1 });
+            }
         }
 
         public DataTable GetTree(int parentID)
@@ -208,5 +230,67 @@ namespace ReportESF
             }
             return result;
         }
+
+        #endregion
+
+        #region Data retrieving
+
+        public DataTable HourValues(string id_pp, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(
+                    "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',2,null,null,null,null,null)",
+                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.HourValues" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        public DataTable ParamInfo(string id_pp)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                string sql = @"select dbo.zzz_getps(p.id_point) psname,pointname, t.ParamName
+                    from points p inner join PointParams pp on p.ID_Point=pp.ID_Point
+                    inner join PointParamTypes t on pp.ID_Param=t.ID_Param
+                    where pp.ID_PP="+id_pp;
+                cmd.CommandText = sql;
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить сведения о параметре",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.ParamInfo") +
+                        Environment.NewLine + Environment.NewLine + sql);
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        #endregion
     }
 }
