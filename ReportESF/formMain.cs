@@ -57,7 +57,12 @@ namespace ReportESF
                             case 0: // hour values
                                 xl.OutputHours(selected, calFrom.SelectionStart, calTill.SelectionStart);
                                 break;
-
+                            case 1: // halfhour values
+                                xl.OutputHalfhours(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                break;
+                            case 2: // fixed values
+                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                break;
                         }
                         this.Cursor = Cursors.Default;
                     }
@@ -82,6 +87,7 @@ namespace ReportESF
             formInputBox dlg = new formInputBox("Введите строку поиска", "");
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
+                found.Clear();
                 foreach (TreeNode node in treePoints.Nodes)
                     found.AddRange(FoundNodes(node, dlg.Result));
                 if (found.Count > 0)
@@ -277,7 +283,19 @@ namespace ReportESF
                 foreach (int root in roots)
                 {
                     pointInfo = d.PointInfo(root);
-                    imageIndex= (int)pointInfo.Rows[0][3];
+                    if (pointInfo.Rows.Count > 0)
+                        imageIndex = (int)pointInfo.Rows[0][3];
+                    else
+                    {
+                        string details = Settings.ErrorInfo(new Exception("Запрос информации о параметре вернул пустой набор строк"),
+                            "formMain.FillTree");
+                        formError err = new formError("Ошибка при построении дерева",
+                            "Ошибка!",
+                            details + Environment.NewLine + "Добавлено узлов: " + treePoints.GetNodeCount(true) +
+                            Environment.NewLine + Environment.NewLine + "Ошибка на корне " + root);
+                        err.ShowDialog();
+                        continue;
+                    }
                     if (imageIndex >= d.NodeTypes.Length)
                         imageIndex = 0;
                     rootNode = treePoints.Nodes.Add(pointInfo.Rows[0][0].ToString(),

@@ -192,7 +192,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lstReports.FormattingEnabled = true;
             this.lstReports.Items.AddRange(new object[] {
-            "Часовки за период"});
+            "Часовки за период",
+            "Получасовки за период",
+            "Показания на начало суток"});
             this.lstReports.Location = new System.Drawing.Point(3, 28);
             this.lstReports.Name = "lstReports";
             this.lstReports.Size = new System.Drawing.Size(363, 277);
@@ -290,15 +292,19 @@
             // 
             this.txtDateTill.Location = new System.Drawing.Point(202, 189);
             this.txtDateTill.Name = "txtDateTill";
+            this.txtDateTill.ReadOnly = true;
             this.txtDateTill.Size = new System.Drawing.Size(164, 20);
             this.txtDateTill.TabIndex = 3;
+            this.txtDateTill.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtDateFrom
             // 
             this.txtDateFrom.Location = new System.Drawing.Point(20, 189);
             this.txtDateFrom.Name = "txtDateFrom";
+            this.txtDateFrom.ReadOnly = true;
             this.txtDateFrom.Size = new System.Drawing.Size(164, 20);
             this.txtDateFrom.TabIndex = 2;
+            this.txtDateFrom.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // calTill
             // 

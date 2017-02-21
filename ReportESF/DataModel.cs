@@ -235,6 +235,33 @@ namespace ReportESF
 
         #region Data retrieving
 
+        public DataTable FixedValues(string id_pp, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(
+                    "select * from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
+                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.HourValues" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
         public DataTable HourValues(string id_pp, DateTime dtStart, DateTime dtEnd)
         {
             DataTable result = new DataTable();
@@ -244,7 +271,34 @@ namespace ReportESF
                 SqlCommand cmd = cn.CreateCommand();
                 cmd.CommandText = string.Format(
                     "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',2,null,null,null,null,null)",
-                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.AddDays(1).ToString("yyyyMMdd"));
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.HourValues" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        public DataTable HalfhourValues(string id_pp, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(
+                    "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',1,null,null,null,null,null)",
+                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.AddDays(1).ToString("yyyyMMdd"));
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 try
                 {

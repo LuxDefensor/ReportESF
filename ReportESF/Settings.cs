@@ -25,7 +25,7 @@ namespace ReportESF
                 lines[1] = "database=askue_stavropolenergo";
                 lines[2] = "user=unknown";
                 lines[3] = "password=password";
-                lines[4] = "1";
+                lines[4] = "roots=1";
                 File.WriteAllLines(fileName, lines);
             }
         }
