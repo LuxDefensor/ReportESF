@@ -30,7 +30,7 @@ namespace ReportESF
 
         #region Methods
 
-        public void OutputFixed(List<string> selectedParams, DateTime dtStart, DateTime dtEnd)
+        public void OutputFixed(List<string> selectedParams, DateTime dtStart, DateTime dtEnd, bool withKtr, bool measuredOnly)
         {
             Excel.Range c;
             int percent;
@@ -59,7 +59,7 @@ namespace ReportESF
                 c.Font.Bold = true;
                 c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                 c.Interior.Color = Excel.XlRgbColor.rgbGrey;
-                halfhourVals = d.FixedValues(pp_id, dtStart, dtEnd);
+                halfhourVals = d.FixedValues(pp_id, dtStart, dtEnd, withKtr, measuredOnly);
                 foreach (DataRow row in halfhourVals.Rows)
                 {
                     c = ws.Cells[currentRow, currentColumn];

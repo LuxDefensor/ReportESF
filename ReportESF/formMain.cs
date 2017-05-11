@@ -60,8 +60,14 @@ namespace ReportESF
                             case 1: // halfhour values
                                 xl.OutputHalfhours(selected, calFrom.SelectionStart, calTill.SelectionStart);
                                 break;
-                            case 2: // fixed values
-                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                            case 2: // fixed values with Ktr
+                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, true, false);
+                                break;
+                            case 3: // fixed values without Ktr
+                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, false);
+                                break;
+                            case 4: // fixed values without Ktr (only measured values)
+                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, true);
                                 break;
                         }
                         this.Cursor = Cursors.Default;

@@ -235,16 +235,27 @@ namespace ReportESF
 
         #region Data retrieving
 
-        public DataTable FixedValues(string id_pp, DateTime dtStart, DateTime dtEnd)
+        public DataTable FixedValues(string id_pp, DateTime dtStart, DateTime dtEnd, bool withKtr, bool measuredOnly)
         {
             DataTable result = new DataTable();
             using (SqlConnection cn = new SqlConnection(cs))
             {
                 cn.Open();
                 SqlCommand cmd = cn.CreateCommand();
-                cmd.CommandText = string.Format(
-                    "select * from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
-                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                StringBuilder sql = new StringBuilder();
+                if (withKtr)
+                {
+                    sql.AppendFormat("select * from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
+                                     id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                }
+                else
+                {
+                    sql.Append("select n.* from schemacontents sc cross apply ");
+                    sql.AppendFormat("dbo.f_Get_PointNIs(id_ref,'{0}','{1}',3,0,1,null,0,null,null,null) n ",
+                                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                    sql.AppendFormat("where id_pp={0}", id_pp);
+                }
+                cmd.CommandText = sql.ToString();
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 try
                 {

@@ -194,7 +194,9 @@
             this.lstReports.Items.AddRange(new object[] {
             "Часовки за период",
             "Получасовки за период",
-            "Показания на начало суток"});
+            "Показания на начало суток (с учетом Ктр)",
+            "Показания на начало суток (без учета Ктр)",
+            "Только отсечки"});
             this.lstReports.Location = new System.Drawing.Point(3, 28);
             this.lstReports.Name = "lstReports";
             this.lstReports.Size = new System.Drawing.Size(363, 277);
