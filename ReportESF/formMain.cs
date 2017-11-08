@@ -57,16 +57,27 @@ namespace ReportESF
 
         private void BtnCheck_Click(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             if (calFrom.SelectionStart <= calTill.SelectionStart)
             {
-                if (lstReports.SelectedIndex == 5)
-                    dgvCheck.DataSource = d.GetPercentNIs(selected, calFrom.SelectionStart, calTill.SelectionStart);
-                else if (lstReports.SelectedIndex >= 0 && lstReports.SelectedIndex <= 4)
-                    dgvCheck.DataSource = d.GetPercentMains(selected, calFrom.SelectionStart, calTill.SelectionStart);
-                else
+                switch (lstReports.SelectedIndex)
                 {
-                    dgvCheck.DataSource = "";
-                    return;
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        dgvCheck.DataSource = d.GetPercentMains(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                        break;
+                    case 5:
+                        dgvCheck.DataSource = d.GetPercentNIs(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                        break;
+                    case 6:
+                        dgvCheck.DataSource = d.GetPercentLogs(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                        break;
+                    default:
+                        dgvCheck.DataSource = "";
+                        return;
                 }
                 dgvCheck.Columns[0].FillWeight = 6;
                 dgvCheck.Columns[1].FillWeight = 6;
@@ -82,6 +93,7 @@ namespace ReportESF
                 dgvCheck.Columns[3].HeaderText = "Дата последнего значения";
 
             }
+            this.Cursor = Cursors.Default;
         }
 
         private void Btn2Excel_Click(object sender, EventArgs e)
@@ -112,6 +124,9 @@ namespace ReportESF
                                 break;
                             case 5: // fixed values without Ktr (only measured values)
                                 xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, true);
+                                break;
+                            case 6: // meters' logs
+                                xl.OutputMeterLogs(selected, calFrom.SelectionStart, calTill.SelectionStart);
                                 break;
                         }
                         this.Cursor = Cursors.Default;

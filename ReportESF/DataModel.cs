@@ -564,6 +564,118 @@ group by ps,PointName",
             return result;
         }
 
+        public DataTable GetPercentLogs(List<string> id_pps, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+declare @dt1 datetime, @dt2 datetime
+
+set @dt1='{0}'
+set @dt2='{1}';
+
+select dbo.zzz_getps(pp.id_point) ps,
+(select pointname from points where id_point=pp.ID_Point) feeder,
+case count(*)
+when 0 then 0
+else 100
+end pc,
+max(d.dt)
+from pointparams pp
+inner join schemacontents sc_high on pp.ID_PP=sc_high.ID_PP and
+sc_high.RefIsPoint=2
+inner join schemacontents sc_low on sc_high.ID_Ref=sc_low.ID_PP and
+sc_low.refispoint=1
+inner join channels_main c1 on c1.ID_Channel=sc_low.ID_Ref and
+sc_low.RefIsPoint=1
+inner join channels_main c2 on c2.ID_USPD=c1.ID_USPD and c2.TypeChan='J'
+inner join vwDiscretsWithDesc d on d.id_channel=c2.ID_Channel
+where d.dt between @dt1 and @dt2
+and sc_high.id_pp in ({2})
+group by pp.id_point
+order by 1,2",
+                    dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
+                    string.Join(",", id_pps));
+                da.SelectCommand = cmd;
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.GetPercentNIs" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                if (result.Rows.Count == 0)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.GetPercentNIs" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        public DataTable MeterLogs(List<string> id_pps, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+select dbo.zzz_getps(pp.id_point) Подстанция,
+(select pointname from points where id_point=pp.ID_Point) Счетчик,
+d.dt Дата, d.description Описание,d.comment Дополнительно
+from pointparams pp
+inner join schemacontents sc_high on pp.ID_PP=sc_high.ID_PP and
+sc_high.RefIsPoint=2
+inner join schemacontents sc_low on sc_high.ID_Ref=sc_low.ID_PP and
+sc_low.refispoint=1
+inner join channels_main c1 on c1.ID_Channel=sc_low.ID_Ref and
+sc_low.RefIsPoint=1
+inner join channels_main c2 on c2.ID_USPD=c1.ID_USPD and c2.TypeChan='J'
+inner join vwDiscretsWithDesc d on d.id_channel=c2.ID_Channel
+where d.dt between '{0}' and '{1}'
+and sc_high.id_pp in ({2})
+order by 1,2,3 desc",
+                    dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
+                    string.Join(",", id_pps));
+                da.SelectCommand = cmd;
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.MeterLogs" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                if (result.Rows.Count == 0)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.MeterLogs" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
         #endregion
     }
 }

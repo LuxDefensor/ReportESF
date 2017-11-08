@@ -252,6 +252,48 @@ namespace ReportESF
             releaseObject(ws);
         }
 
+        public void OutputMeterLogs(List<string> selectedParams, DateTime dtStart, DateTime dtEnd)
+        {
+            Excel.Range c;
+            DataTable logs;
+            xls = new Excel.Application();
+            xls.SheetsInNewWorkbook = 1;
+            wb = xls.Workbooks.Add();
+            Excel.Worksheet ws = (Excel.Worksheet)wb.Worksheets[1];
+            logs = d.MeterLogs(selectedParams, dtStart, dtEnd);
+            string[,] entries = new string[logs.Rows.Count, 5];
+            for (int i = 0; i < logs.Rows.Count; i++)
+            {
+                entries[i, 0] = logs.Rows[i][0].ToString();
+                entries[i, 1] = logs.Rows[i][1].ToString();
+                entries[i, 2] = logs.Rows[i][2].ToString();
+                entries[i, 3] = logs.Rows[i][3].ToString();
+                entries[i, 4] = logs.Rows[i][4].ToString();
+            }
+            c = (Excel.Range)(ws.Cells[2, 1]);
+            c = c.Resize[logs.Rows.Count, 5];
+            c.Value = entries;
+            c = (Excel.Range)(ws.Cells[1, 1]);
+            c.ColumnWidth = 40;
+            c.Value = "Подстанция";
+            c = (Excel.Range)(ws.Cells[1, 2]);
+            c.ColumnWidth = 20;
+            c.Value = "Счетчик";
+            c = (Excel.Range)(ws.Cells[1, 3]);
+            c.ColumnWidth = 18;
+            c.Value = "Дата";
+            c = (Excel.Range)(ws.Cells[1, 4]);
+            c.ColumnWidth = 45;
+            c.Value = "Запись";
+            c = (Excel.Range)(ws.Cells[1, 5]);
+            c.ColumnWidth = 36;
+            c.Value = "Дополнительно";
+            c = (Excel.Range)ws.Range["A1:E1"];
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            c.Font.Bold = true;
+            FinishTable(ws, 2, 1, 0, true);
+            releaseObject(ws);
+        }
 
         /// <summary>
         /// Table1 is for reports where we have two leftmost columns for date and time and first three rows contain 
