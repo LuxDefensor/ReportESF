@@ -41,6 +41,47 @@ namespace ReportESF
             btnFindNext.Click += BtnFindNext_Click;
             btn2Excel.Click += Btn2Excel_Click;
             lstPresets.DoubleClick += LstPresets_DoubleClick;
+            btnCheck.Click += BtnCheck_Click;
+            lstReports.SelectedIndexChanged += LstReports_SelectedIndexChanged;
+        }
+
+        private void LstReports_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ClearCheck();
+        }
+
+        private void ClearCheck()
+        {
+            dgvCheck.DataSource = "";
+        }
+
+        private void BtnCheck_Click(object sender, EventArgs e)
+        {
+            if (calFrom.SelectionStart <= calTill.SelectionStart)
+            {
+                if (lstReports.SelectedIndex == 5)
+                    dgvCheck.DataSource = d.GetPercentNIs(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                else if (lstReports.SelectedIndex >= 0 && lstReports.SelectedIndex <= 4)
+                    dgvCheck.DataSource = d.GetPercentMains(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                else
+                {
+                    dgvCheck.DataSource = "";
+                    return;
+                }
+                dgvCheck.Columns[0].FillWeight = 6;
+                dgvCheck.Columns[1].FillWeight = 6;
+                dgvCheck.Columns[2].FillWeight = 1;
+                dgvCheck.Columns[3].FillWeight = 3;
+                dgvCheck.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvCheck.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvCheck.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvCheck.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvCheck.Columns[0].HeaderText = "Подстанция";
+                dgvCheck.Columns[1].HeaderText = "Присоединение";
+                dgvCheck.Columns[2].HeaderText = "%";
+                dgvCheck.Columns[3].HeaderText = "Дата последнего значения";
+
+            }
         }
 
         private void Btn2Excel_Click(object sender, EventArgs e)
@@ -60,13 +101,16 @@ namespace ReportESF
                             case 1: // halfhour values
                                 xl.OutputHalfhours(selected, calFrom.SelectionStart, calTill.SelectionStart);
                                 break;
-                            case 2: // fixed values with Ktr
+                            case 2: // daily consumption
+                                xl.OutputDaily(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                break;
+                            case 3: // fixed values with Ktr
                                 xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, true, false);
                                 break;
-                            case 3: // fixed values without Ktr
+                            case 4: // fixed values without Ktr
                                 xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, false);
                                 break;
-                            case 4: // fixed values without Ktr (only measured values)
+                            case 5: // fixed values without Ktr (only measured values)
                                 xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, true);
                                 break;
                         }
@@ -226,6 +270,7 @@ namespace ReportESF
                 CheckChildren(e.Node, e.Node.Checked);
                 processChecks = true;
                 CountChecked();
+                ClearCheck();
                 this.Cursor = Cursors.Default;
             }
         }
@@ -257,11 +302,13 @@ namespace ReportESF
         private void CalTill_DateChanged(object sender, DateRangeEventArgs e)
         {
             txtDateTill.Text = e.Start.ToShortDateString();
+            ClearCheck();
         }
 
         private void CalFrom_DateChanged(object sender, DateRangeEventArgs e)
         {
             txtDateFrom.Text = e.Start.ToShortDateString();
+            ClearCheck();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -323,7 +370,7 @@ namespace ReportESF
                             row[2].ToString(),
                             d.NodeTypes[imageIndex],
                             d.NodeTypes[imageIndex]);
-                        if (imageIndex == 10) // если этот узел - Присоединение
+                        if (imageIndex == 10 || imageIndex == 9) // если этот узел - Присоединение или ОВ
                         {
                             parameters = d.GetParams(row[0].ToString());
                             foreach (DataRow p in parameters.Rows)

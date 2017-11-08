@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(formMain));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtSelectedCount = new System.Windows.Forms.TextBox();
@@ -57,12 +58,18 @@
             this.btnSavePreset = new System.Windows.Forms.Button();
             this.tipSelectAll = new System.Windows.Forms.ToolTip(this.components);
             this.tipPresets = new System.Windows.Forms.ToolTip(this.components);
+            this.dgvCheck = new System.Windows.Forms.DataGridView();
+            this.label3 = new System.Windows.Forms.Label();
+            this.btnCheck = new System.Windows.Forms.Button();
+            this.panel6 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCheck)).BeginInit();
+            this.panel6.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -72,19 +79,20 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
             this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.panel2, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.panel2, 2, 2);
             this.tableLayoutPanel1.Controls.Add(this.panel3, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel4, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.lstPresets, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.panel5, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.panel6, 2, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 240F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(755, 557);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1016, 557);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // panel1
@@ -96,13 +104,13 @@
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
             this.tableLayoutPanel1.SetRowSpan(this.panel1, 2);
-            this.panel1.Size = new System.Drawing.Size(276, 431);
+            this.panel1.Size = new System.Drawing.Size(380, 390);
             this.panel1.TabIndex = 0;
             // 
             // txtSelectedCount
             // 
             this.txtSelectedCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtSelectedCount.Location = new System.Drawing.Point(115, 406);
+            this.txtSelectedCount.Location = new System.Drawing.Point(115, 365);
             this.txtSelectedCount.Name = "txtSelectedCount";
             this.txtSelectedCount.Size = new System.Drawing.Size(83, 20);
             this.txtSelectedCount.TabIndex = 2;
@@ -111,7 +119,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 409);
+            this.label1.Location = new System.Drawing.Point(9, 368);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(100, 13);
             this.label1.TabIndex = 1;
@@ -129,7 +137,7 @@
             this.treePoints.Location = new System.Drawing.Point(9, 9);
             this.treePoints.Name = "treePoints";
             this.treePoints.SelectedImageIndex = 0;
-            this.treePoints.Size = new System.Drawing.Size(264, 393);
+            this.treePoints.Size = new System.Drawing.Size(368, 352);
             this.treePoints.TabIndex = 0;
             // 
             // ilTree
@@ -157,10 +165,9 @@
             this.panel2.Controls.Add(this.btn2Excel);
             this.panel2.Controls.Add(this.lstReports);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(335, 243);
+            this.panel2.Location = new System.Drawing.Point(439, 399);
             this.panel2.Name = "panel2";
-            this.tableLayoutPanel1.SetRowSpan(this.panel2, 2);
-            this.panel2.Size = new System.Drawing.Size(417, 311);
+            this.panel2.Size = new System.Drawing.Size(574, 155);
             this.panel2.TabIndex = 1;
             // 
             // label2
@@ -177,7 +184,7 @@
             this.btn2Excel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn2Excel.Font = new System.Drawing.Font("Wingdings", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
             this.btn2Excel.ForeColor = System.Drawing.Color.Green;
-            this.btn2Excel.Location = new System.Drawing.Point(372, 269);
+            this.btn2Excel.Location = new System.Drawing.Point(529, 113);
             this.btn2Excel.Name = "btn2Excel";
             this.btn2Excel.Size = new System.Drawing.Size(38, 36);
             this.btn2Excel.TabIndex = 7;
@@ -194,12 +201,13 @@
             this.lstReports.Items.AddRange(new object[] {
             "Часовки за период",
             "Получасовки за период",
+            "Посуточное потребление",
             "Показания на начало суток (с учетом Ктр)",
             "Показания на начало суток (без учета Ктр)",
             "Только отсечки"});
             this.lstReports.Location = new System.Drawing.Point(3, 28);
             this.lstReports.Name = "lstReports";
-            this.lstReports.Size = new System.Drawing.Size(363, 277);
+            this.lstReports.Size = new System.Drawing.Size(520, 121);
             this.lstReports.TabIndex = 0;
             // 
             // panel3
@@ -209,9 +217,10 @@
             this.panel3.Controls.Add(this.btnDeselectAll);
             this.panel3.Controls.Add(this.btnSelectAll);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(285, 3);
+            this.panel3.Location = new System.Drawing.Point(389, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(44, 234);
+            this.tableLayoutPanel1.SetRowSpan(this.panel3, 2);
+            this.panel3.Size = new System.Drawing.Size(44, 390);
             this.panel3.TabIndex = 2;
             this.tipSelectAll.SetToolTip(this.panel3, "Новый поиск");
             // 
@@ -271,9 +280,9 @@
             this.panel4.Controls.Add(this.calTill);
             this.panel4.Controls.Add(this.calFrom);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(335, 3);
+            this.panel4.Location = new System.Drawing.Point(439, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(417, 234);
+            this.panel4.Size = new System.Drawing.Size(574, 152);
             this.panel4.TabIndex = 3;
             // 
             // btnSettings
@@ -282,7 +291,7 @@
             this.btnSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.btnSettings.Font = new System.Drawing.Font("Webdings", 19F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
             this.btnSettings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.btnSettings.Location = new System.Drawing.Point(372, 15);
+            this.btnSettings.Location = new System.Drawing.Point(529, 15);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(38, 36);
             this.btnSettings.TabIndex = 4;
@@ -292,7 +301,7 @@
             // 
             // txtDateTill
             // 
-            this.txtDateTill.Location = new System.Drawing.Point(202, 189);
+            this.txtDateTill.Location = new System.Drawing.Point(202, 182);
             this.txtDateTill.Name = "txtDateTill";
             this.txtDateTill.ReadOnly = true;
             this.txtDateTill.Size = new System.Drawing.Size(164, 20);
@@ -301,7 +310,7 @@
             // 
             // txtDateFrom
             // 
-            this.txtDateFrom.Location = new System.Drawing.Point(20, 189);
+            this.txtDateFrom.Location = new System.Drawing.Point(20, 182);
             this.txtDateFrom.Name = "txtDateFrom";
             this.txtDateFrom.ReadOnly = true;
             this.txtDateFrom.Size = new System.Drawing.Size(164, 20);
@@ -326,9 +335,9 @@
             // 
             this.lstPresets.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstPresets.FormattingEnabled = true;
-            this.lstPresets.Location = new System.Drawing.Point(3, 440);
+            this.lstPresets.Location = new System.Drawing.Point(3, 399);
             this.lstPresets.Name = "lstPresets";
-            this.lstPresets.Size = new System.Drawing.Size(276, 114);
+            this.lstPresets.Size = new System.Drawing.Size(380, 155);
             this.lstPresets.TabIndex = 4;
             this.tipPresets.SetToolTip(this.lstPresets, "Двойной щелчок - загрузить набор\r\n\r\nВ именах наборов НЕЛЬЗЯ использовать символы:" +
         "\r\n* . ? [ ] / \\ | %");
@@ -338,9 +347,9 @@
             this.panel5.Controls.Add(this.btnDeletePreset);
             this.panel5.Controls.Add(this.btnSavePreset);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel5.Location = new System.Drawing.Point(285, 440);
+            this.panel5.Location = new System.Drawing.Point(389, 399);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(44, 114);
+            this.panel5.Size = new System.Drawing.Size(44, 155);
             this.panel5.TabIndex = 5;
             // 
             // btnDeletePreset
@@ -373,11 +382,67 @@
             this.tipPresets.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.tipPresets.ToolTipTitle = "Сохранённые наборы точек";
             // 
+            // dgvCheck
+            // 
+            this.dgvCheck.AllowUserToAddRows = false;
+            this.dgvCheck.AllowUserToDeleteRows = false;
+            this.dgvCheck.AllowUserToResizeRows = false;
+            this.dgvCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCheck.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvCheck.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvCheck.Location = new System.Drawing.Point(3, 32);
+            this.dgvCheck.MultiSelect = false;
+            this.dgvCheck.Name = "dgvCheck";
+            this.dgvCheck.ReadOnly = true;
+            this.dgvCheck.RowHeadersVisible = false;
+            this.dgvCheck.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgvCheck.Size = new System.Drawing.Size(520, 197);
+            this.dgvCheck.TabIndex = 5;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(3, 16);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(176, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Проверка полноты сбора данных";
+            // 
+            // btnCheck
+            // 
+            this.btnCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCheck.Location = new System.Drawing.Point(448, 6);
+            this.btnCheck.Name = "btnCheck";
+            this.btnCheck.Size = new System.Drawing.Size(75, 27);
+            this.btnCheck.TabIndex = 7;
+            this.btnCheck.Text = "Проверить";
+            this.btnCheck.UseVisualStyleBackColor = true;
+            // 
+            // panel6
+            // 
+            this.panel6.Controls.Add(this.dgvCheck);
+            this.panel6.Controls.Add(this.btnCheck);
+            this.panel6.Controls.Add(this.label3);
+            this.panel6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel6.Location = new System.Drawing.Point(439, 161);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new System.Drawing.Size(574, 232);
+            this.panel6.TabIndex = 6;
+            // 
             // formMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(755, 557);
+            this.ClientSize = new System.Drawing.Size(1016, 557);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "formMain";
@@ -391,6 +456,9 @@
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
             this.panel5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCheck)).EndInit();
+            this.panel6.ResumeLayout(false);
+            this.panel6.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -424,6 +492,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btn2Excel;
         private System.Windows.Forms.ListBox lstReports;
+        private System.Windows.Forms.DataGridView dgvCheck;
+        private System.Windows.Forms.Button btnCheck;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Panel panel6;
     }
 }
 

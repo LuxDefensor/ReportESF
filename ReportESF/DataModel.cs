@@ -151,7 +151,7 @@ namespace ReportESF
 	                SELECT ap.PointID,ap.ID_Parent,ap.PointName,
 	                ap.PointType
 	                FROM AllPoints ap 
-	                where ap.PointType in (8,7,151,148,147,10,5,1,2)
+	                where ap.PointType in (8,7,151,148,147,10,5,1,2,9)
                     and ap.PointID<>1
                     ";
                 SqlCommand cmd = cn.CreateCommand();
@@ -231,6 +231,84 @@ namespace ReportESF
             return result;
         }
 
+        public DataTable ParamInfo(string id_pp)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                string sql = @"select dbo.zzz_getps(p.id_point) psname,pointname, 
+                    case pp.id_param
+                        when 2 then '(А-)'
+                        when 4 then '(А+)'
+                        when 6 then '(Р-)'
+                        when 8 then '(Р+)'
+                    end
+                    from points p inner join PointParams pp on p.ID_Point=pp.ID_Point
+                    inner join PointParamTypes t on pp.ID_Param=t.ID_Param
+                    where pp.ID_PP="+id_pp;
+                cmd.CommandText = sql;
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить сведения о параметре",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.ParamInfo") +
+                        Environment.NewLine + Environment.NewLine + sql);
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns point name from database
+        /// </summary>
+        /// <param name="id_pp">ID_PP column in the table PointParams</param>
+        /// <returns>A tuple where the first item is Substation name and the second is the feeder's name</returns>
+        public Tuple<string, string> GetFeederName(string id_pp)
+        {
+            SqlDataReader dr = null;
+            Tuple<string, string> result;
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+select distinct dbo.zzz_GetPS(p.id_point) PS, PointName from points p
+inner join PointPParams pp on pp.id_point=p.id_point
+where id_pp={0}", id_pp);
+                try
+                {
+                    dr = cmd.ExecuteReader(CommandBehavior.SingleRow);
+                }
+                catch(Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.GetFeederName" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                if (!dr.HasRows)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.GetFeederName" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                dr.Read();
+                result = new Tuple<string, string>(dr[0].ToString(), dr[1].ToString());
+                dr.Close();
+            }
+            return result;
+        }
         #endregion
 
         #region Data retrieving
@@ -243,17 +321,41 @@ namespace ReportESF
                 cn.Open();
                 SqlCommand cmd = cn.CreateCommand();
                 StringBuilder sql = new StringBuilder();
-                if (withKtr)
+                if (measuredOnly)
                 {
-                    sql.AppendFormat("select * from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
-                                     id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                    sql.AppendFormat(@"declare @dates table (dt0 datetime)
+declare @dt1 datetime, @dt2 datetime, @dtcurrent datetime
+set @dt1='{0}'
+set @dt2='{1}'
+set @dtcurrent=@dt1
+while @dtcurrent<=@dt2
+begin
+	insert into @dates(dt0) values(@dtcurrent)
+	set @dtcurrent=DATEADD(day,1,@dtcurrent)
+end
+
+select d.dt0, n.DT,n.Val
+from @dates d
+outer apply 
+(select ni.DT,ni.Val from PointNIs_On_Main_Stack ni 
+ inner join SchemaContents sc on sc.ID_Ref=ni.ID_PP and sc.RefIsPoint=2
+where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
+", dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"), id_pp);
                 }
                 else
                 {
-                    sql.Append("select n.* from schemacontents sc cross apply ");
-                    sql.AppendFormat("dbo.f_Get_PointNIs(id_ref,'{0}','{1}',3,0,1,null,0,null,null,null) n ",
-                                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
-                    sql.AppendFormat("where id_pp={0}", id_pp);
+                    if (withKtr)
+                    {
+                        sql.AppendFormat("select * from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
+                                         id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                    }
+                    else
+                    {
+                        sql.Append("select n.* from schemacontents sc cross apply ");
+                        sql.AppendFormat("dbo.f_Get_PointNIs(id_ref,'{0}','{1}',3,0,1,null,0,null,null,null) n ",
+                                         dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                        sql.AppendFormat("where id_pp={0} and n.DT between sc.DT1 and sc.DT2", id_pp);
+                    }
                 }
                 cmd.CommandText = sql.ToString();
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -265,6 +367,33 @@ namespace ReportESF
                 {
                     formError err = new formError("Невозможно получить значения",
                         "Ошибка!", Settings.ErrorInfo(ex, "DataModel.HourValues" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        public DataTable DailyValues(string id_pp, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText=string.Format(
+                    "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',3,null,null,null,null,null)",
+                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.AddDays(1).ToString("yyyyMMdd"));
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.DailyValues" +
                         Environment.NewLine + Environment.NewLine + cmd.CommandText));
                     err.ShowDialog();
                     System.Windows.Forms.Application.Exit();
@@ -327,28 +456,107 @@ namespace ReportESF
             return result;
         }
 
-        public DataTable ParamInfo(string id_pp)
+        public DataTable GetPercentMains(List<string> id_pps, DateTime dtStart, DateTime dtEnd)
         {
             DataTable result = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
             using (SqlConnection cn = new SqlConnection(cs))
             {
                 cn.Open();
                 SqlCommand cmd = cn.CreateCommand();
-                string sql = @"select dbo.zzz_getps(p.id_point) psname,pointname, t.ParamName
-                    from points p inner join PointParams pp on p.ID_Point=pp.ID_Point
-                    inner join PointParamTypes t on pp.ID_Param=t.ID_Param
-                    where pp.ID_PP="+id_pp;
-                cmd.CommandText = sql;
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                cmd.CommandText = string.Format(@"
+declare @dt1 datetime, @dt2 datetime
+
+set @dt1='{0}'
+set @dt2=DATEADD(minute,-30,'{1}');
+
+with src as(
+select dbo.zzz_GetPS(p.ID_Point) PS, PointName, ni.DT, ni.ID_PP
+from points p left join pointparams pp on p.ID_Point=pp.ID_Point
+left join SchemaContents sc on pp.ID_PP=sc.ID_PP and sc.RefIsPoint=2
+left join PointMains ni on ni.ID_PP=sc.ID_Ref
+where pp.ID_PP in ({2})
+and ni.dt between @dt1 and @dt2 and sc.DT1<@dt1 and sc.DT2>@dt2)
+
+select PS,PointName,
+100 * COUNT(*) / (DATEDIFF(HOUR,@dt1,@dt2)*2) / count(distinct id_pp) PC,
+MAX(dt)
+from src
+group by ps,PointName",
+                    dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
+                    string.Join(",",id_pps));
+                da.SelectCommand = cmd;
                 try
                 {
                     da.Fill(result);
                 }
                 catch (Exception ex)
                 {
-                    formError err = new formError("Невозможно получить сведения о параметре",
-                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.ParamInfo") +
-                        Environment.NewLine + Environment.NewLine + sql);
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.GetPercentMains" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                if (result.Rows.Count==0)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.GetPercentMains" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+            }
+            return result;
+        }
+
+        public DataTable GetPercentNIs(List<string> id_pps, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+declare @dt1 datetime, @dt2 datetime
+
+set @dt1='{0}'
+set @dt2='{1}';
+
+with src as(
+select dbo.zzz_GetPS(p.ID_Point) PS, PointName, ni.DT, ni.ID_PP
+from points p left join pointparams pp on p.ID_Point=pp.ID_Point
+left join SchemaContents sc on pp.ID_PP=sc.ID_PP and sc.RefIsPoint=2
+left join PointNIs_On_Main_Stack ni on ni.ID_PP=sc.ID_Ref
+where pp.ID_PP in ({2})
+and ni.dt between @dt1 and @dt2 and sc.DT1<@dt1 and sc.DT2>@dt2)
+
+select PS,PointName,
+100 * COUNT(*) / (DATEDIFF(DAY,@dt1,@dt2)+1) / count(distinct id_pp) PC,
+MAX(dt)
+from src
+group by ps,PointName",
+                    dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
+                    string.Join(",", id_pps));
+                da.SelectCommand = cmd;
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.GetPercentNIs" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                if (result.Rows.Count == 0)
+                {
+                    formError err = new formError("Невозможно получить значение",
+                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.GetPercentNIs" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
                     err.ShowDialog();
                     System.Windows.Forms.Application.Exit();
                 }
