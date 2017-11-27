@@ -485,6 +485,7 @@ from src
 group by ps,PointName",
                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
                     string.Join(",",id_pps));
+                cmd.CommandTimeout = 300;
                 da.SelectCommand = cmd;
                 try
                 {
@@ -539,6 +540,7 @@ from src
 group by ps,PointName",
                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
                     string.Join(",", id_pps));
+                cmd.CommandTimeout = 300;
                 da.SelectCommand = cmd;
                 try
                 {
@@ -600,6 +602,7 @@ group by pp.id_point
 order by 1,2",
                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
                     string.Join(",", id_pps));
+                cmd.CommandTimeout = 300;
                 da.SelectCommand = cmd;
                 try
                 {

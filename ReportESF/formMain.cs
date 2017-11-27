@@ -57,6 +57,12 @@ namespace ReportESF
 
         private void BtnCheck_Click(object sender, EventArgs e)
         {
+            if (calFrom.SelectionStart > calTill.SelectionStart)
+                return;
+            if (lstReports.SelectedIndex == -1)
+                return;
+            if (selected.Count == 0)
+                return;
             this.Cursor = Cursors.WaitCursor;
             if (calFrom.SelectionStart <= calTill.SelectionStart)
             {
