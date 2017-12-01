@@ -133,6 +133,34 @@ namespace ReportESF
             }
         }
 
+        public DataTable GetChildren(int parentID)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                string sql = @"
+select id_point, pointname, point_type, id_parent from points
+where id_parent=" + parentID;
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = sql.Replace("{0}", parentID.ToString());
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    string details = Settings.ErrorInfo(ex, "DataModel.GetTree");
+                    formError err = new formError("Ошибка при получении списка подчинённых узлов для " + parentID,
+                        "Ошибка!",
+                        details + Environment.NewLine + cmd.CommandText);
+                    err.ShowDialog();
+                }
+            }
+            return result;
+        }
+
         public DataTable GetTree(int parentID)
         {
             DataTable result = new DataTable();
@@ -173,6 +201,39 @@ namespace ReportESF
             return result;
         }
 
+        public string PointName(int idPoint)
+        {
+            object result = "Ошибка!";
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = "select PointName from points where ID_Point=" + idPoint;
+                try
+                {
+                    result = cmd.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    string details = Settings.ErrorInfo(ex, "DataModel.PointName");
+                    formError err = new formError("Ошибка при получении информации об узле " + idPoint,
+                        "Ошибка!",
+                        details + Environment.NewLine + cmd.CommandText);
+                    err.ShowDialog();
+                }
+                if (result == null || Convert.IsDBNull(result))
+                {
+                    string details = Settings.ErrorInfo(new Exception("Запрос вернул пустое значение"), "DataModel.PointInfo");
+                    formError err = new formError("Ошибка при получении информации об узле " + idPoint,
+                        "Ошибка!",
+                        details + Environment.NewLine + cmd.CommandText);
+                    err.ShowDialog();
+                    result = "Ошибка!";
+                }
+                return result.ToString();
+            }
+        }
+
         public DataTable PointInfo(int pointID)
         {
             DataTable result = new DataTable();
@@ -199,6 +260,41 @@ namespace ReportESF
                 }
             }
             return result;
+        }
+
+        public string PointPath(int pointID, string separator)
+        {
+            object result = "Ошибка!";
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+select dbo.PointPath({0},dbo.TreeRootID({0}),'{1}')",
+pointID, separator);
+                try
+                {
+                    result = cmd.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    string details = Settings.ErrorInfo(ex, "DataModel.PointPath");
+                    formError err = new formError("Ошибка при получении списка подчинённых узлов для " + pointID,
+                        "Ошибка!",
+                        details + Environment.NewLine + cmd.CommandText);
+                    err.ShowDialog();
+                }
+                if (result == null || Convert.IsDBNull(result))
+                {
+                    string details = Settings.ErrorInfo(new Exception("Запрос вернул пустое значение"), "DataModel.PointPath");
+                    formError err = new formError("Ошибка при получении информации об узле " + pointID,
+                        "Ошибка!",
+                        details + Environment.NewLine + cmd.CommandText);
+                    err.ShowDialog();
+                    result = "Ошибка!";
+                }
+                return result.ToString();
+            }
         }
 
         public DataTable GetParams(string pointID)
@@ -313,6 +409,58 @@ where id_pp={0}", id_pp);
 
         #region Data retrieving
 
+        /// <summary>
+        /// Checks Ktr on the both ends of the time interval.
+        /// If two Ktr values are the same then returns this value
+        /// otherwise returns NULL
+        /// </summary>
+        /// <param name="id_pp"></param>
+        /// <param name="dtStart"></param>
+        /// <param name="dtEnd"></param>
+        /// <returns></returns>
+        public Nullable<double> GetKtr(string id_pp, DateTime dtStart, DateTime dtEnd)
+        {
+            object result;
+            object ktr1, ktr2;
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+select dbo.zzz_getcoef(dbo.pp_id_point({0}),{1}", id_pp, dtStart);
+                try
+                {
+                    ktr1 = cmd.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+    "Ошибка!", Settings.ErrorInfo(ex, "DataModel.GetKtr" +
+    Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    return null;
+                }
+                cmd.CommandText = string.Format(@"
+select dbo.zzz_getcoef(dbo.pp_id_point({0}),{1}", id_pp, dtEnd);
+                try
+                {
+                    ktr2 = cmd.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+"Ошибка!", Settings.ErrorInfo(ex, "DataModel.GetKtr" +
+Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    return null;
+                }
+                if (ktr1?.ToString() == ktr2?.ToString())
+                    return (double)ktr1;
+                else
+                    return null;
+            }
+        }
+
         public DataTable FixedValues(string id_pp, DateTime dtStart, DateTime dtEnd, bool withKtr, bool measuredOnly)
         {
             DataTable result = new DataTable();
@@ -334,10 +482,10 @@ begin
 	set @dtcurrent=DATEADD(day,1,@dtcurrent)
 end
 
-select d.dt0, n.DT,n.Val
+select n.DT,n.Val, n.State
 from @dates d
 outer apply 
-(select ni.DT,ni.Val from PointNIs_On_Main_Stack ni 
+(select ni.DT,ni.Val,ni.State from PointNIs_On_Main_Stack ni 
  inner join SchemaContents sc on sc.ID_Ref=ni.ID_PP and sc.RefIsPoint=2
 where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
 ", dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"), id_pp);
@@ -346,12 +494,12 @@ where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
                 {
                     if (withKtr)
                     {
-                        sql.AppendFormat("select * from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
+                        sql.AppendFormat("select dt, value, state from dbo.f_Get_PointNIs({0},'{1}','{2}',3,0,1,null,0,null,null,null)",
                                          id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
                     }
                     else
                     {
-                        sql.Append("select n.* from schemacontents sc cross apply ");
+                        sql.Append("select n.dt, n.value, n.state from schemacontents sc cross apply ");
                         sql.AppendFormat("dbo.f_Get_PointNIs(id_ref,'{0}','{1}',3,0,1,null,0,null,null,null) n ",
                                          dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
                         sql.AppendFormat("where id_pp={0} and n.DT between sc.DT1 and sc.DT2", id_pp);
@@ -375,6 +523,40 @@ where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
             return result;
         }
 
+        public DataTable PairOfFixedValues(string id_pp, DateTime dtStart, DateTime dtEnd)
+        {
+            DataTable result = new DataTable();
+            using (SqlConnection cn = new SqlConnection(cs))
+            {
+                cn.Open();
+                SqlCommand cmd = cn.CreateCommand();
+                cmd.CommandText = string.Format(@"
+select dt,value,state 
+from dbo.f_Get_PointNIs({0},'{1}','{2}',0,default,default,default,default,default,default,default) n1",
+                    id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"));
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                try
+                {
+                    da.Fill(result);
+                }
+                catch (Exception ex)
+                {
+                    formError err = new formError("Невозможно получить значения",
+                        "Ошибка!", Settings.ErrorInfo(ex, "DataModel.PairOfFixedValues" +
+                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
+                    err.ShowDialog();
+                    System.Windows.Forms.Application.Exit();
+                }
+                if (result.Rows.Count != 2)
+                {
+                    result.Rows.Clear();
+                    result.Rows.Add(dtStart, null, 1);
+                    result.Rows.Add(dtEnd, null, 1);
+                }
+            }
+            return result;
+        }
+
         public DataTable DailyValues(string id_pp, DateTime dtStart, DateTime dtEnd)
         {
             DataTable result = new DataTable();
@@ -383,7 +565,7 @@ where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
                 cn.Open();
                 SqlCommand cmd = cn.CreateCommand();
                 cmd.CommandText=string.Format(
-                    "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',3,null,null,null,null,null)",
+                    "select dt,value,state from dbo.f_Get_PointProfile({0},'{1}','{2}',3,null,null,null,null,null)",
                     id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.AddDays(1).ToString("yyyyMMdd"));
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 try
@@ -410,7 +592,7 @@ where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
                 cn.Open();
                 SqlCommand cmd = cn.CreateCommand();
                 cmd.CommandText = string.Format(
-                    "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',2,null,null,null,null,null)",
+                    "select dt,value,state from dbo.f_Get_PointProfile({0},'{1}','{2}',2,null,null,null,null,null)",
                     id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.AddDays(1).ToString("yyyyMMdd"));
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 try
@@ -437,7 +619,7 @@ where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
                 cn.Open();
                 SqlCommand cmd = cn.CreateCommand();
                 cmd.CommandText = string.Format(
-                    "select * from dbo.f_Get_PointProfile({0},'{1}','{2}',1,null,null,null,null,null)",
+                    "select dt,value,state from dbo.f_Get_PointProfile({0},'{1}','{2}',1,null,null,null,null,null)",
                     id_pp, dtStart.ToString("yyyyMMdd"), dtEnd.AddDays(1).ToString("yyyyMMdd"));
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 try
@@ -466,23 +648,30 @@ where sc.ID_PP={2} and d.dt0=ni.dt and ni.DT between sc.DT1 and sc.DT2) as n
                 SqlCommand cmd = cn.CreateCommand();
                 cmd.CommandText = string.Format(@"
 declare @dt1 datetime, @dt2 datetime
+declare @halfhours int
 
 set @dt1='{0}'
-set @dt2=DATEADD(minute,-30,'{1}');
+set @dt2=DATEADD(minute,-30,'{1}')
+set @halfhours=DATEDIFF(HOUR,@dt1,@dt2)*2
+
+if @halfhours=0 set @halfhours=1;
 
 with src as(
-select dbo.zzz_GetPS(p.ID_Point) PS, PointName, ni.DT, ni.ID_PP
+select p.id_point, dbo.zzz_GetPS(p.ID_Point) PS, PointName, ni.DT, ni.ID_PP meter, pp.ID_PP feeder
 from points p left join pointparams pp on p.ID_Point=pp.ID_Point
 left join SchemaContents sc on pp.ID_PP=sc.ID_PP and sc.RefIsPoint=2
 left join PointMains ni on ni.ID_PP=sc.ID_Ref
 where pp.ID_PP in ({2})
 and ni.dt between @dt1 and @dt2 and sc.DT1<@dt1 and sc.DT2>@dt2)
 
-select PS,PointName,
-100 * COUNT(*) / (DATEDIFF(HOUR,@dt1,@dt2)*2) / count(distinct id_pp) PC,
-MAX(dt)
-from src
-group by ps,PointName",
+select dbo.zzz_GetPS(p.ID_Point) PS, PointName,
+100 * (select count(*) from src where src.ID_Point=p.ID_Point)/@halfhours/count(id_pp) PC,
+(select max(dt) from pointmains m
+ right join pointparams pp1 on pp1.ID_PP=m.ID_PP
+ where pp1.ID_Point=p.ID_point) LastDate
+from points p left join pointparams pp on p.ID_Point=pp.ID_Point
+where pp.ID_PP in ({2})
+group by p.ID_Point,PointName",
                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
                     string.Join(",",id_pps));
                 cmd.CommandTimeout = 300;
@@ -521,23 +710,30 @@ group by ps,PointName",
                 SqlCommand cmd = cn.CreateCommand();
                 cmd.CommandText = string.Format(@"
 declare @dt1 datetime, @dt2 datetime
+declare @days int
 
 set @dt1='{0}'
-set @dt2='{1}';
+set @dt2='{1}'
+set @days=DATEDIFF(DAY,@dt1,@dt2)
+
+if @days=0 set @days=1;
 
 with src as(
-select dbo.zzz_GetPS(p.ID_Point) PS, PointName, ni.DT, ni.ID_PP
+select p.id_point, dbo.zzz_GetPS(p.ID_Point) PS, PointName, ni.DT, ni.ID_PP meter, pp.ID_PP feeder
 from points p left join pointparams pp on p.ID_Point=pp.ID_Point
 left join SchemaContents sc on pp.ID_PP=sc.ID_PP and sc.RefIsPoint=2
 left join PointNIs_On_Main_Stack ni on ni.ID_PP=sc.ID_Ref
 where pp.ID_PP in ({2})
 and ni.dt between @dt1 and @dt2 and sc.DT1<@dt1 and sc.DT2>@dt2)
 
-select PS,PointName,
-100 * COUNT(*) / (DATEDIFF(DAY,@dt1,@dt2)+1) / count(distinct id_pp) PC,
-MAX(dt)
-from src
-group by ps,PointName",
+select dbo.zzz_GetPS(p.ID_Point) PS, PointName,
+100 * (select count(*) from src where src.ID_Point=p.ID_Point)/@days/count(id_pp) PC,
+(select max(dt) from src
+ right join pointparams pp1 on pp1.id_pp=src.feeder
+ where pp1.ID_Point=p.ID_Point) LastDate
+from points p left join pointparams pp on p.ID_Point=pp.ID_Point
+where pp.ID_PP in ({2})
+group by p.ID_Point,PointName",
                     dtStart.ToString("yyyyMMdd"), dtEnd.ToString("yyyyMMdd"),
                     string.Join(",", id_pps));
                 cmd.CommandTimeout = 300;
@@ -618,11 +814,7 @@ order by 1,2",
                 }
                 if (result.Rows.Count == 0)
                 {
-                    formError err = new formError("Невозможно получить значение",
-                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.GetPercentNIs" +
-                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
-                    err.ShowDialog();
-                    System.Windows.Forms.Application.Exit();
+                    result.Rows.Add("Журнал пуст", "", 0, null);
                 }
             }
             return result;
@@ -669,11 +861,7 @@ order by 1,2,3 desc",
                 }
                 if (result.Rows.Count == 0)
                 {
-                    formError err = new formError("Невозможно получить значение",
-                        "Ошибка!", Settings.ErrorInfo(new Exception("The query returned empty rowset"), "DataModel.MeterLogs" +
-                        Environment.NewLine + Environment.NewLine + cmd.CommandText));
-                    err.ShowDialog();
-                    System.Windows.Forms.Application.Exit();
+                    result.Rows.Add("Нет событий", "", null, "", "");
                 }
             }
             return result;

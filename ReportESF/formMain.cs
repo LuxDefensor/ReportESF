@@ -43,6 +43,13 @@ namespace ReportESF
             lstPresets.DoubleClick += LstPresets_DoubleClick;
             btnCheck.Click += BtnCheck_Click;
             lstReports.SelectedIndexChanged += LstReports_SelectedIndexChanged;
+            button1.Click += Button1_Click;
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            formTest frm = new formTest();
+            frm.Show();
         }
 
         private void LstReports_SelectedIndexChanged(object sender, EventArgs e)
@@ -73,12 +80,13 @@ namespace ReportESF
                     case 2:
                     case 3:
                     case 4:
+                    case 6:
                         dgvCheck.DataSource = d.GetPercentMains(selected, calFrom.SelectionStart, calTill.SelectionStart);
                         break;
                     case 5:
                         dgvCheck.DataSource = d.GetPercentNIs(selected, calFrom.SelectionStart, calTill.SelectionStart);
                         break;
-                    case 6:
+                    case 7:
                         dgvCheck.DataSource = d.GetPercentLogs(selected, calFrom.SelectionStart, calTill.SelectionStart);
                         break;
                     default:
@@ -114,24 +122,58 @@ namespace ReportESF
                         switch (lstReports.SelectedIndex)
                         {
                             case 0: // hour values
-                                xl.OutputHours(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                if (chkTranspose.Checked)
+                                    xl.OutputLandsccape(selected, Reports.Hours, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromHours(1), "Часовки", false);
+                                else
+                                    xl.OutputPortrait(selected, Reports.Hours, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromHours(1), "Часовки", false);
                                 break;
                             case 1: // halfhour values
-                                xl.OutputHalfhours(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                if (chkTranspose.Checked)
+                                    xl.OutputLandsccape(selected, Reports.Halfhours, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromMinutes(30), "Получасовки", false);
+                                else
+                                    xl.OutputPortrait(selected, Reports.Halfhours, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromMinutes(30), "Получасовки", false);
                                 break;
                             case 2: // daily consumption
-                                xl.OutputDaily(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                                if (chkTranspose.Checked)
+                                    xl.OutputLandsccape(selected, Reports.Daily, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Потребление", false);
+                                else
+                                    xl.OutputPortrait(selected, Reports.Daily, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Потребление", false);
                                 break;
                             case 3: // fixed values with Ktr
-                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, true, false);
+                                if (chkTranspose.Checked)
+                                    xl.OutputLandsccape(selected, Reports.Fixed, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Показания", true);
+                                else
+                                    xl.OutputPortrait(selected, Reports.Fixed, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Показания", true);
                                 break;
                             case 4: // fixed values without Ktr
-                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, false);
+                                if (chkTranspose.Checked)
+                                    xl.OutputLandsccape(selected, Reports.FixedWithoutKtr, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Показания", true);
+                                else
+                                    xl.OutputPortrait(selected, Reports.FixedWithoutKtr, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Показания", true);
                                 break;
                             case 5: // fixed values without Ktr (only measured values)
-                                xl.OutputFixed(selected, calFrom.SelectionStart, calTill.SelectionStart, false, true);
+                                if (chkTranspose.Checked)
+                                    xl.OutputLandsccape(selected, Reports.Measured, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Показания", true);
+                                else
+                                    xl.OutputPortrait(selected, Reports.Measured, calFrom.SelectionStart, calTill.SelectionStart,
+                                        TimeSpan.FromDays(1), "Показания", true);
                                 break;
-                            case 6: // meters' logs
+                            case 6: // fixed values on both ends of the time period
+                                xl.OutputLandsccape(selected, Reports.PairOfFixed, calFrom.SelectionStart, calTill.SelectionStart,
+                                    calTill.SelectionStart - calFrom.SelectionStart, "Показания", true);
+                                break;
+                            case 7: // meters' logs
                                 xl.OutputMeterLogs(selected, calFrom.SelectionStart, calTill.SelectionStart);
                                 break;
                         }
@@ -335,6 +377,9 @@ namespace ReportESF
         private void FormMain_Load(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
+#if (DEBUG)
+            button1.Visible = true;
+#endif
             this.WindowState = FormWindowState.Maximized;
             calFrom.SetDate(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
             calTill.SetDate(DateTime.Today.AddDays(-1));

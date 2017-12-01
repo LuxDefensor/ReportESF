@@ -7,6 +7,18 @@ using System.Data;
 
 namespace ReportESF
 {
+    public enum Reports
+    {
+        Hours,
+        Halfhours,
+        Daily,
+        Fixed,
+        FixedWithoutKtr,
+        PairOfFixed,
+        Measured,
+        Log
+    }
+
     class XLSExport
     {
         private Excel.Application xls;
@@ -426,8 +438,304 @@ namespace ReportESF
             releaseObject(xls);
         }
 
+        /// <summary>
+        /// Dates vertically in the two left columns, parameters horizontally in the three top rows
+        /// </summary>
+        /// <param name="selectedParams"></param>
+        /// <param name="dtStart"></param>
+        /// <param name="dtEnd"></param>
+        /// <param name="delta"></param>
+        /// <param name="title"></param>
+        public void OutputPortrait(List<string> selectedParams, Reports reportType,
+            DateTime dtStart, DateTime dtEnd, TimeSpan delta, string title, bool integral)
+        {
+            pb = new frmProgress();
+            Excel.Range c;
+            int percent;
+            int firstRow = 5;
+            int totalParams = selectedParams.Count;
+            int totalRows = (int)(dtEnd.AddDays(1).Subtract(dtStart).TotalSeconds / delta.TotalSeconds);
+            int totalData = totalRows * totalParams;
+            int completed = 0;
+            int currentColumn, currentRow;
+            string val;
+            DataTable values, paramInfo;
+            #region Prepare table
+            xls = new Excel.Application();
+            xls.SheetsInNewWorkbook = 1;
+            wb = xls.Workbooks.Add();
+            Excel.Worksheet ws = (Excel.Worksheet)wb.Worksheets[1];
+            ws.Name = title;
+            c = (Excel.Range)(ws.Cells[1, 1]);
+            c.Value = "Период с";
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+            c = (Excel.Range)(ws.Cells[2, 1]);
+            c.Value = "по";
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+            c = (Excel.Range)(ws.Cells[1, 2]);
+            c.Value = dtStart.ToShortDateString();
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft;
+            c = (Excel.Range)(ws.Cells[2, 2]);
+            c.Value = dtEnd.ToShortDateString();
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft;
+            c = (Excel.Range)(ws.Cells[firstRow - 1, 1]);
+            c.Value = "Дата";
+            c.ColumnWidth = 12;
+            c.Interior.Color = Excel.XlRgbColor.rgbGrey;
+            c = (Excel.Range)(ws.Cells[firstRow - 1, 2]);
+            c.Value = "Время";
+            c.ColumnWidth = 13;
+            c.Interior.Color = Excel.XlRgbColor.rgbGrey;
+            DateTime currentDate = dtStart;
+            currentRow = firstRow;
+            totalRows = (int)(dtEnd.AddDays(1).Subtract(dtStart).TotalSeconds / delta.TotalSeconds);
+            string[,] leftColumns = new string[totalRows, 2];
+            while (currentDate < dtEnd.AddDays(1))
+            {
+                leftColumns[currentRow - firstRow, 0] =
+                    currentDate.Date.ToShortDateString();
+                leftColumns[currentRow - firstRow, 1] =
+                    string.Format("{0:00}:{1:00} - {2:00}:{3:00}",
+                                  currentDate.TimeOfDay.Hours,
+                                  currentDate.TimeOfDay.Minutes,
+                                  (currentDate + delta).TimeOfDay.Hours,
+                                  (currentDate + delta).TimeOfDay.Minutes);
+                currentDate = currentDate + delta;
+                currentRow++;
+            }
+            c = (Excel.Range)ws.Cells[firstRow, 1];
+            c = c.Resize[totalRows, 2];
+            c.Value = leftColumns;
+            #endregion
+            currentColumn = 3;
+            pb.Show();
+            foreach (string id_pp in selectedParams)
+            {
+                paramInfo = d.ParamInfo(id_pp);
+                currentRow = firstRow;
+                c = (Excel.Range)(ws.Cells[1, currentColumn]);
+                c.ColumnWidth = 24;
+                c.Value = paramInfo.Rows[0][0].ToString();
+                ws.Cells[2, currentColumn] = paramInfo.Rows[0][1].ToString();
+                ws.Cells[3, currentColumn] = paramInfo.Rows[0][2].ToString();
+                c = (Excel.Range)(ws.Cells[firstRow - 1, currentColumn]);
+                if (integral)
+                    c.FormulaR1C1 = string.Format("=R[{0}]C-R[1]C", totalRows);
+                else
+                    c.FormulaR1C1 = string.Format("=SUM(R[1]C:R[{0}]C)", totalRows);
+                c.NumberFormat = "#,##0.00";
+                c.Font.Bold = true;
+                c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                c.Interior.Color = Excel.XlRgbColor.rgbGrey;
+                values = null;
+                switch (reportType)
+                {
+                    case Reports.Hours:
+                        values = d.HourValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Halfhours:
+                        values = d.HalfhourValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Daily:
+                        values = d.DailyValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Fixed:
+                        values = d.FixedValues(id_pp, dtStart, dtEnd, true, false);
+                        break;
+                    case Reports.FixedWithoutKtr:
+                        values = d.FixedValues(id_pp, dtStart, dtEnd, false, false);
+                        break;
+                    case Reports.PairOfFixed:
+                        values = d.PairOfFixedValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Measured:
+                        values = d.FixedValues(id_pp, dtStart, dtEnd, false, true);
+                        break;
+                    case Reports.Log:
+                        throw new Exception("PortraitOutput: this method cannot otuput <Meters' logs> report");
+                }
+                foreach (DataRow row in values.Rows)
+                {
+                    c = ws.Cells[currentRow, currentColumn];
+                    if (row[1] == null || Convert.IsDBNull(row[1]))
+                        val = "--";
+                    else
+                    {
+                        c.NumberFormat = "#,##0.00";
+                        val = row[1].ToString().Replace(',', '.');
+                    }
+                    if (row[2]==null || Convert.IsDBNull(row[2]) || (int)row[2] != 0)
+                        c.Font.Color = Excel.XlRgbColor.rgbRed;
+                    c.Value = val;
+                    currentRow++;
+                    completed++;
+                    percent = 100 * completed / totalData;
+                    pb.SetProgress(percent);
+                }
+                currentColumn++;
+            }
+            #region Finish table
+            ws.UsedRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+            xls.Visible = true;
+            c = (Excel.Range)ws.Cells[firstRow, 3];
+            c.Select();
+            Excel.Windows xlsWindows = wb.Windows;
+            Excel.Window xlsWindow = xlsWindows[1];
+            xlsWindow.FreezePanes = true;
+            wb.Activate();
+            xlsWindow.Activate();
+            #endregion
+            pb.Close();
+            releaseObject(ws);
+            releaseObject(wb);
+            releaseObject(xls);
+        }
 
-       
+        /// <summary>
+        /// Dates horizontally in the two top rows, parameters vertically in the three left columns
+        /// </summary>
+        /// <param name="selectedParams"></param>
+        /// <param name="dtStart"></param>
+        /// <param name="dtEnd"></param>
+        /// <param name="delta"></param>
+        /// <param name="title"></param>
+        public void OutputLandsccape(List<string> selectedParams, Reports reportType,
+            DateTime dtStart, DateTime dtEnd, TimeSpan delta, string title, bool integral)
+        {
+            pb = new frmProgress();
+            Excel.Range c;
+            int percent;
+            int firstColumn = 5, firstRow = 2;
+            int totalParams = selectedParams.Count;
+            int totalColumns = (int)(dtEnd.AddDays(1).Subtract(dtStart).TotalSeconds / delta.TotalSeconds);
+            int totalData = totalColumns * totalParams;
+            int completed = 0;
+            int currentColumn, currentRow;
+            string val;
+            DataTable values, paramInfo;
+            #region Prepare table
+            xls = new Excel.Application();
+            xls.SheetsInNewWorkbook = 1;
+            wb = xls.Workbooks.Add();
+            Excel.Worksheet ws = (Excel.Worksheet)wb.Worksheets[1];
+            ws.Name = title;
+            c = (Excel.Range)(ws.Cells[1, 1]);
+            c.Value = "Подстанция";
+            c.ColumnWidth = 24;
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            c = (Excel.Range)(ws.Cells[1, 2]);
+            c.Value = "Присоединение";
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            c.ColumnWidth = 24;
+            c = (Excel.Range)(ws.Cells[1, 3]);
+            c.Value = "Канал";
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            c.ColumnWidth = 8;
+            c = (Excel.Range)(ws.Cells[1, 4]);
+            c.Value = "Сумма";
+            c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            c.ColumnWidth = 16;
+            c.Interior.Color = Excel.XlRgbColor.rgbGray;
+            DateTime currentDate = dtStart;
+            currentColumn = firstColumn;
+            while (currentDate < dtEnd.AddDays(1))
+            {
+                c = (Excel.Range)(ws.Cells[1, currentColumn]);
+                c.Value = currentDate;
+                c.NumberFormat = (delta.TotalDays >= 1) ? "dd.mm.yyyy" : "dd.mm.yyyy HH:mm;@";
+                c.ColumnWidth = 18;
+                c.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+                c.Font.Bold = true;
+                currentDate = currentDate.Add(delta);
+                currentColumn++;
+            }
+            if (reportType == Reports.PairOfFixed)
+                totalColumns = 2;
+            else
+                totalColumns = (int)(dtEnd.AddDays(1).Subtract(dtStart).TotalSeconds / delta.TotalSeconds);
+            #endregion
+            currentRow = firstRow;
+            pb.Show();
+            foreach (string id_pp in selectedParams)
+            {
+                paramInfo = d.ParamInfo(id_pp);
+                currentColumn = firstColumn;
+                ws.Cells[currentRow, 1] = paramInfo.Rows[0][0].ToString();
+                ws.Cells[currentRow, 2] = paramInfo.Rows[0][1].ToString();
+                ws.Cells[currentRow, 3] = paramInfo.Rows[0][2].ToString();
+                c = (Excel.Range)(ws.Cells[currentRow, 4]);
+                if (integral)
+                    c.FormulaR1C1 = string.Format("=RC[{0}]-RC[1]", totalColumns);
+                else
+                    c.FormulaR1C1 = string.Format("=SUM(RC[1]:RC[{0}])", totalColumns);
+                c.NumberFormat = "#,##0.00";
+                c.Font.Bold = true;
+                c.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+                c.Interior.Color = Excel.XlRgbColor.rgbGrey;
+                values = null;
+                switch (reportType)
+                {
+                    case Reports.Hours:
+                        values = d.HourValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Halfhours:
+                        values = d.HalfhourValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Daily:
+                        values = d.DailyValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Fixed:
+                        values = d.FixedValues(id_pp, dtStart, dtEnd, true, false);
+                        break;
+                    case Reports.FixedWithoutKtr:
+                        values = d.FixedValues(id_pp, dtStart, dtEnd, false, false);
+                        break;
+                    case Reports.PairOfFixed:
+                        values = d.PairOfFixedValues(id_pp, dtStart, dtEnd);
+                        break;
+                    case Reports.Measured:
+                        values = d.FixedValues(id_pp, dtStart, dtEnd, false, true);
+                        break;
+                    case Reports.Log:
+                        throw new Exception("PortraitOutput: this method cannot otuput <Meters' logs> report");
+                }
+                foreach (DataRow row in values.Rows)
+                {
+                    c = ws.Cells[currentRow, currentColumn];
+                    if (row[1] == null || Convert.IsDBNull(row[1]))
+                        val = "--";
+                    else
+                    {
+                        c.NumberFormat = "#,##0.00";
+                        val = row[1].ToString().Replace(',', '.');
+                    }
+                    if (row[2]==null || Convert.IsDBNull(row[2]) || (int)row[2] != 0)
+                        c.Font.Color = Excel.XlRgbColor.rgbRed;
+                    c.Value = val;
+                    currentColumn++;
+                    completed++;
+                    percent = 100 * completed / totalData;
+                    pb.SetProgress(percent);
+                }
+                currentRow++;
+            }
+            #region Finish table
+            ws.UsedRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+            xls.Visible = true;
+            c = (Excel.Range)ws.Cells[firstRow, firstColumn];
+            c.Select();
+            Excel.Windows xlsWindows = wb.Windows;
+            Excel.Window xlsWindow = xlsWindows[1];
+            xlsWindow.FreezePanes = true;
+            wb.Activate();
+            xlsWindow.Activate();
+            #endregion
+            pb.Close();
+            releaseObject(ws);
+            releaseObject(wb);
+            releaseObject(xls);
+        }
+
         private void releaseObject(object obj)
         {
             try
