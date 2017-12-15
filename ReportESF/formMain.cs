@@ -8,31 +8,54 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Energosphere;
+using Settings;
 
 namespace ReportESF
 {
     public partial class formMain: Form
     {
-        private DataModel d;
+        
         private XLSExport xl;
-        private List<string> selected;
+        private List<Parameter> selected;
         private bool processChecks = true;
         private char[] invalidChars = Path.GetInvalidFileNameChars();
         private List<TreeNode> found;
         private string lastSearch = string.Empty;
+        private AIIS aiis;
+        private SettingsManager settings;
+        Calculator c;
+
+        #region imageIndexes dictionary
+        private Dictionary<int, int> imageIndexes = new Dictionary<int, int>()
+        {
+            {1,0 },
+            {2,1 },
+            {5,2 },
+            {7,3 },
+            {8,4 },
+            {9,5 },
+            {10,6 },
+            {12,7 },
+            {21,8 },
+            {17,9 },
+            {39,10 },
+            {47,11 },
+            {19,12 }
+        };
+
+        #endregion
 
         public formMain()
         {
             InitializeComponent();
-            selected = new List<string>();
-            found = new List<TreeNode>();
-            d = new DataModel();
-            xl = new XLSExport();
             this.Load += FormMain_Load;
             calFrom.DateChanged += CalFrom_DateChanged;
             calTill.DateChanged += CalTill_DateChanged;
             btnSettings.Click += BtnSettings_Click;
             treePoints.AfterCheck += TreePoints_AfterCheck;
+            treePoints.BeforeExpand += TreePoints_BeforeExpand;
+            treePoints.NodeMouseClick += TreePoints_NodeMouseClick;
             btnSelectAll.Click += BtnSelectAll_Click;
             btnDeselectAll.Click += BtnDeselectAll_Click;
             btnSavePreset.Click += BtnSavePreset_Click;
@@ -43,13 +66,72 @@ namespace ReportESF
             lstPresets.DoubleClick += LstPresets_DoubleClick;
             btnCheck.Click += BtnCheck_Click;
             lstReports.SelectedIndexChanged += LstReports_SelectedIndexChanged;
-            button1.Click += Button1_Click;
+            menuTree.Click += MenuLoadChildren_Click;
         }
 
-        private void Button1_Click(object sender, EventArgs e)
+        private void MenuLoadChildren_Click(object sender, EventArgs e)
         {
-            formTest frm = new formTest();
-            frm.Show();
+            if (treePoints.SelectedNode != null)
+            {
+                Application.DoEvents();
+                this.Cursor = Cursors.WaitCursor;
+                LoadTreeSection(treePoints.SelectedNode);
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        private void TreePoints_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            int id;
+            if (e.Node.Nodes.Count == 0)
+            {
+                if (e.Node.Name.Substring(0, 1) != "_")
+                {
+                    id = int.Parse(e.Node.Name);
+                    Energosphere.Point current = aiis.GetPoint(id);
+                    if (current == null)
+                        throw new PointNotFoundException("В загруженной расчетной схеме нет точки с ID_Point = " + id);
+                    if (!current.Loaded)
+                        FillTree(e.Node, current.Children);
+                }
+            }
+        }
+
+        private void Aiis_PointsUpdate(PointEventArgs e)
+        {
+            TreeNode[] nodes = treePoints.Nodes.Find(e.ParentPoint.ID.ToString(), true);
+            if (nodes.Length == 1)
+            {
+                FillTree(nodes[0], e.Points);
+            }
+        }
+
+        private void TreePoints_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            int id;
+            if (e.Node.Name.Substring(0, 1) != "_")
+            {
+                id = int.Parse(e.Node.Name);
+                Energosphere.Point current = aiis.GetPoint(id);
+                if (current == null)
+                    throw new PointNotFoundException("В загруженной расчетной схеме нет точки с ID_Point = " + id);
+                if (!current.Loaded)
+                    FillTree(e.Node, current.Children);
+            }
+        }
+
+        private void LoadTreeSection(TreeNode node)
+        {
+            string nodeIndex = node.Name;
+            if (nodeIndex.Substring(0, 1)!="_")
+            {
+                Energosphere.Point point = aiis.GetPoint(int.Parse(nodeIndex));
+                if (point == null)
+                    return;
+                aiis.LoadSubtree(point);
+                node.Expand();
+                node.EnsureVisible();
+            }
         }
 
         private void LstReports_SelectedIndexChanged(object sender, EventArgs e)
@@ -71,6 +153,7 @@ namespace ReportESF
             if (selected.Count == 0)
                 return;
             this.Cursor = Cursors.WaitCursor;
+            string sql;
             if (calFrom.SelectionStart <= calTill.SelectionStart)
             {
                 switch (lstReports.SelectedIndex)
@@ -81,13 +164,13 @@ namespace ReportESF
                     case 3:
                     case 4:
                     case 6:
-                        dgvCheck.DataSource = d.GetPercentMains(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                        dgvCheck.DataSource = c.GetPercentMains(selected, calFrom.SelectionStart, calTill.SelectionStart);
                         break;
                     case 5:
-                        dgvCheck.DataSource = d.GetPercentNIs(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                        dgvCheck.DataSource = c.GetPercentNIs(selected, calFrom.SelectionStart, calTill.SelectionStart);
                         break;
                     case 7:
-                        dgvCheck.DataSource = d.GetPercentLogs(selected, calFrom.SelectionStart, calTill.SelectionStart);
+                        dgvCheck.DataSource = c.GetPercentLogs(selected, calFrom.SelectionStart, calTill.SelectionStart);
                         break;
                     default:
                         dgvCheck.DataSource = "";
@@ -123,7 +206,7 @@ namespace ReportESF
                         {
                             case 0: // hour values
                                 if (chkTranspose.Checked)
-                                    xl.OutputLandsccape(selected, Reports.Hours, calFrom.SelectionStart, calTill.SelectionStart,
+                                    xl.OutputLandscape(selected, Reports.Hours, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromHours(1), "Часовки", false);
                                 else
                                     xl.OutputPortrait(selected, Reports.Hours, calFrom.SelectionStart, calTill.SelectionStart,
@@ -131,7 +214,7 @@ namespace ReportESF
                                 break;
                             case 1: // halfhour values
                                 if (chkTranspose.Checked)
-                                    xl.OutputLandsccape(selected, Reports.Halfhours, calFrom.SelectionStart, calTill.SelectionStart,
+                                    xl.OutputLandscape(selected, Reports.Halfhours, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromMinutes(30), "Получасовки", false);
                                 else
                                     xl.OutputPortrait(selected, Reports.Halfhours, calFrom.SelectionStart, calTill.SelectionStart,
@@ -139,7 +222,7 @@ namespace ReportESF
                                 break;
                             case 2: // daily consumption
                                 if (chkTranspose.Checked)
-                                    xl.OutputLandsccape(selected, Reports.Daily, calFrom.SelectionStart, calTill.SelectionStart,
+                                    xl.OutputLandscape(selected, Reports.Daily, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromDays(1), "Потребление", false);
                                 else
                                     xl.OutputPortrait(selected, Reports.Daily, calFrom.SelectionStart, calTill.SelectionStart,
@@ -147,7 +230,7 @@ namespace ReportESF
                                 break;
                             case 3: // fixed values with Ktr
                                 if (chkTranspose.Checked)
-                                    xl.OutputLandsccape(selected, Reports.Fixed, calFrom.SelectionStart, calTill.SelectionStart,
+                                    xl.OutputLandscape(selected, Reports.Fixed, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromDays(1), "Показания", true);
                                 else
                                     xl.OutputPortrait(selected, Reports.Fixed, calFrom.SelectionStart, calTill.SelectionStart,
@@ -155,7 +238,7 @@ namespace ReportESF
                                 break;
                             case 4: // fixed values without Ktr
                                 if (chkTranspose.Checked)
-                                    xl.OutputLandsccape(selected, Reports.FixedWithoutKtr, calFrom.SelectionStart, calTill.SelectionStart,
+                                    xl.OutputLandscape(selected, Reports.FixedWithoutKtr, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromDays(1), "Показания", true);
                                 else
                                     xl.OutputPortrait(selected, Reports.FixedWithoutKtr, calFrom.SelectionStart, calTill.SelectionStart,
@@ -163,14 +246,14 @@ namespace ReportESF
                                 break;
                             case 5: // fixed values without Ktr (only measured values)
                                 if (chkTranspose.Checked)
-                                    xl.OutputLandsccape(selected, Reports.Measured, calFrom.SelectionStart, calTill.SelectionStart,
+                                    xl.OutputLandscape(selected, Reports.Measured, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromDays(1), "Показания", true);
                                 else
                                     xl.OutputPortrait(selected, Reports.Measured, calFrom.SelectionStart, calTill.SelectionStart,
                                         TimeSpan.FromDays(1), "Показания", true);
                                 break;
                             case 6: // fixed values on both ends of the time period
-                                xl.OutputLandsccape(selected, Reports.PairOfFixed, calFrom.SelectionStart, calTill.SelectionStart,
+                                xl.OutputLandscape(selected, Reports.PairOfFixed, calFrom.SelectionStart, calTill.SelectionStart,
                                     calTill.SelectionStart - calFrom.SelectionStart, "Показания", true);
                                 break;
                             case 7: // meters' logs
@@ -197,63 +280,87 @@ namespace ReportESF
 
         private void BtnSearch_Click(object sender, EventArgs e)
         {
+            List<Energosphere.Point> foundPoints;
+            TreeNode[] nodes;
             formInputBox dlg = new formInputBox("Введите строку поиска", "");
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
                 found.Clear();
-                foreach (TreeNode node in treePoints.Nodes)
-                    found.AddRange(FoundNodes(node, dlg.Result));
+                lastSearch = dlg.Result;
+                foundPoints = aiis.Search(lastSearch);
+                foreach (Energosphere.Point p in foundPoints)
+                {
+                    nodes = treePoints.Nodes.Find(p.ID.ToString(), true);
+                    if (nodes.Length == 1)
+                        found.Add(nodes[0]);
+                }
                 if (found.Count > 0)
                 {
                     treePoints.CollapseAll();
                     found[0].EnsureVisible();
+                    treePoints.SelectedNode = found[0];
                 }
-                lastSearch = dlg.Result;
                 tipSelectAll.SetToolTip(btnFindNext,
                     "Поиск: " + lastSearch + Environment.NewLine +
                     "Найдено: " + found.Count.ToString() + " узлов");
             }
         }
 
-        private List<TreeNode> FoundNodes(TreeNode root, string criterion)
-        {
-            List<TreeNode> result = new List<TreeNode>();
-            foreach (TreeNode node in root.Nodes)
-            {
-                if (node.Text.ToLower().Contains(criterion.ToLower()))
-                {
-                    result.Add(node);
-                }
-                result.AddRange(FoundNodes(node, criterion));
-            }
-            return result;
-        }
-
         private void LstPresets_DoubleClick(object sender, EventArgs e)
         {
             string fileName;
+            Parameter current;
             TreeNode[] found;
             if (lstPresets.SelectedIndex >= 0)
             {
                 this.Cursor = Cursors.WaitCursor;
                 treePoints.CollapseAll();
-                fileName = lstPresets.SelectedItem.ToString() + ".pst";
+                fileName = lstPresets.Text + ".pst";
                 if (File.Exists(fileName))
                 {
                     BtnDeselectAll_Click(sender, e);
-                    selected = new List<string>(File.ReadAllLines(fileName));
-                    processChecks = false;
-                    foreach (string node in selected)
+                    selected = new List<Parameter>();
+                    foreach (string line in File.ReadAllLines(fileName))
                     {
-                        found = treePoints.Nodes.Find("_" + node, true);
+                        current = aiis.AllParameters.FirstOrDefault(p => p.Id.ToString() == line);
+                        if (current == null)
+                        {
+                            current = aiis.LoadParameter(line);
+                        }
+                        selected.Add(current);
+                    }
+                    processChecks = false;
+                    foreach (Parameter par in selected)
+                    {
+                        found = treePoints.Nodes.Find("_" + par.Id.ToString(), true);
                         if (found.Length == 1)
                             found[0].Checked = true;
+                        else
+                        {
+                            formError frm = new formError("Ошибка загрузки расчетной схемы", "Ошибка!",
+                                Settings.ErrorInfo(new Exception("Parameter isn't in the tree yet, but it should be"),
+                                                   "formMain.LstPresets_DoubleClick") +
+                                Environment.NewLine + "ip_pp = " + par.Id.ToString());
+                            frm.ShowDialog();
+                            Application.Exit();
+                        }
                     }
                     found = treePoints.Nodes.Find("_" + selected[0], true);
                     if (found.Length == 1)
+                    {
                         found[0].EnsureVisible();
+                        treePoints.SelectedNode = found[0];
+                    }
                     CountChecked();
                     processChecks = true;
+                }
+                else
+                {
+                    var details = Settings.ErrorInfo(null, "formMain.LstPresets_DoubleClick") +
+                        Environment.NewLine + "Files present: " + Environment.NewLine +
+                        string.Join(Environment.NewLine, Directory.GetFiles(Environment.CurrentDirectory));
+                    formError frm = new formError("Не найден набор " + lstPresets.Text, "Ошибка!", details);
+                    frm.ShowDialog();
                 }
                 this.Cursor = Cursors.Default;
             }
@@ -296,7 +403,7 @@ namespace ReportESF
                         "Такой набор уже существует", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                File.WriteAllLines(fileName.ToString() + ".pst", selected.ToArray());
+                File.WriteAllLines(fileName.ToString() + ".pst", selected.Select(p => p.Id.ToString()));
                 lstPresets.Items.Add(fileName);
             }
         }
@@ -312,6 +419,7 @@ namespace ReportESF
         private void BtnSelectAll_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
+            aiis.LoadAllPoints();
             foreach (TreeNode node in treePoints.Nodes)
                 node.Checked = true;
             this.Cursor = Cursors.Default;
@@ -319,17 +427,32 @@ namespace ReportESF
 
         private void TreePoints_AfterCheck(object sender, TreeViewEventArgs e)
         {
-        
             if (processChecks)
             {
+                Parameter current = null;
+                Energosphere.Point point = null;
                 this.Cursor = Cursors.WaitCursor;
-                if (e.Node.Checked)
+                if (e.Node.Name.Substring(0, 1) != "_")
                 {
-                    if (e.Node.ImageIndex == 9 && !selected.Contains(e.Node.Name.Replace("_", "")))
-                        selected.Add(e.Node.Name.Replace("_", ""));
+                    point = aiis.AllPoints.FirstOrDefault(p => p.ID == int.Parse(e.Node.Name));
+                    if (point == null)
+                        point = aiis.LoadPoint(int.Parse(e.Node.Name));
                 }
                 else
-                    selected.Remove(e.Node.Name.Replace("_", ""));
+                {
+                    current = aiis.AllParameters.FirstOrDefault(p => p.Id.ToString() == e.Node.Name.Replace("_", string.Empty));
+                    if (current == null)
+                        current = aiis.LoadParameter(e.Node.Name.Replace("_", string.Empty));
+                    point = current.ParentPoint;
+                }
+                if (e.Node.Checked)
+                {
+                    if ((point.Type == PointTypes.Feeder || point.Type == PointTypes.FeederWithBypass)
+                         && !selected.Contains(current) && current != null)
+                        selected.Add(current);
+                }
+                else if (selected.Count > 0)
+                    selected.Remove(selected.FirstOrDefault(p => p.Id.ToString() == e.Node.Name.Replace("_", string.Empty)));
                 CheckChildren(e.Node, e.Node.Checked);
                 processChecks = true;
                 CountChecked();
@@ -340,18 +463,27 @@ namespace ReportESF
         
         private void CheckChildren(TreeNode parent, bool value)
         {
+            Parameter current;
             processChecks = false;
             foreach (TreeNode child in parent.Nodes)
             {
+                CheckChildren(child, value);
+                if (child.Name.Substring(0, 1) != "_")
+                    continue;
+                current = aiis.AllParameters.FirstOrDefault(p => p.Id.ToString() == child.Name.Replace("_", string.Empty));
+                if (current == null)
+                {
+                    current = aiis.LoadParameter(child.Name.Replace("_", string.Empty));
+                }
                 child.Checked = value;
                 if (value)
                 {
-                    if (child.ImageIndex == 9 && !selected.Contains(child.Name.Replace("_", "")))
-                        selected.Add(child.Name.Replace("_", ""));
+                    if ((current.ParentPoint.Type == PointTypes.Feeder || current.ParentPoint.Type == PointTypes.FeederWithBypass)
+                        && !selected.Contains(current))
+                        selected.Add(current);
                 }
                 else
-                    selected.Remove(child.Name.Replace("_", ""));
-                CheckChildren(child, value);
+                    selected.Remove(current);
             }
         }
 
@@ -359,7 +491,6 @@ namespace ReportESF
         {
             formSettings frm = new formSettings();
             frm.ShowDialog(this);
-            d = new DataModel();
         }
 
         private void CalTill_DateChanged(object sender, DateRangeEventArgs e)
@@ -377,76 +508,96 @@ namespace ReportESF
         private void FormMain_Load(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
-#if (DEBUG)
-            button1.Visible = true;
-#endif
+            settings = new SettingsManager(Settings.SettingsFile, new string[] { "roots =1" });
+            c = new Calculator(Settings.SettingsFile);
+            selected = new List<Parameter>();
+            found = new List<TreeNode>();
+            xl = new XLSExport(Settings.SettingsFile);
+            int[] r = null;
+            try
+            {
+                r = settings["roots"].Split(';').Select(s => int.Parse(s.Trim())).ToArray();
+            }
+            catch (Exception ex)
+            {
+                formError frm = new formError("Невозможно прочитать в настройках список корней",
+                    "Ошибка!", Settings.ErrorInfo(ex, "formMain.FormMain_Load"));
+                frm.ShowDialog();
+                Application.Exit();
+            }
+            try
+            {
+                aiis = new AIIS(Settings.SettingsFile, r);
+            }
+            catch (Exception ex)
+            {
+                formError frm = new formError("Невозможно создать главный объект",
+                "Ошибка!", Settings.ErrorInfo(ex, "formMain.FormMain_Load"));
+                frm.ShowDialog();
+                this.Close();
+            }
             this.WindowState = FormWindowState.Maximized;
             calFrom.SetDate(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
             calTill.SetDate(DateTime.Today.AddDays(-1));
-            Settings.CheckINIFile();
-            FillTree();
+            FillTree(null, aiis.Roots);
             LoadPresets();
+            aiis.PointsUpdate += Aiis_PointsUpdate;
             this.Cursor = Cursors.Default;
         }
 
-        private void FillTree()
+        private void FillTree(TreeNode parent, List<Energosphere.Point> children)
         {
-            TreeNode rootNode, currentNode, parentNode;
-            TreeNode[] found;
-            treePoints.Nodes.Clear();
-            DataTable points, pointInfo, parameters;
+            TreeNode currentNode;
+            if (parent == null)
+                treePoints.Nodes.Clear();
             int imageIndex;
             try
             {
-                List<int> roots = d.GetRoots();
-                foreach (int root in roots)
+                foreach (Energosphere.Point point in children)
                 {
-                    pointInfo = d.PointInfo(root);
-                    if (pointInfo.Rows.Count > 0)
-                        imageIndex = (int)pointInfo.Rows[0][3];
-                    else
+                    switch (point.Type)
                     {
-                        string details = Settings.ErrorInfo(new Exception("Запрос информации о параметре вернул пустой набор строк"),
-                            "formMain.FillTree");
-                        formError err = new formError("Ошибка при построении дерева",
-                            "Ошибка!",
-                            details + Environment.NewLine + "Добавлено узлов: " + treePoints.GetNodeCount(true) +
-                            Environment.NewLine + Environment.NewLine + "Ошибка на корне " + root);
-                        err.ShowDialog();
-                        continue;
-                    }
-                    if (imageIndex >= d.NodeTypes.Length)
-                        imageIndex = 0;
-                    rootNode = treePoints.Nodes.Add(pointInfo.Rows[0][0].ToString(),
-                        pointInfo.Rows[0][2].ToString(),
-                        d.NodeTypes[imageIndex],
-                        d.NodeTypes[imageIndex]);
-                    points = d.GetTree(root);
-                    foreach (DataRow row in points.Rows)
-                    {
-                        found = treePoints.Nodes.Find(row[1].ToString(), true);
-                        if (found.Length == 1)
-                            parentNode = found[0];
-                        else
+                        case PointTypes.Abstaract:
+                        case PointTypes.Building:
+                        case PointTypes.Equipment:
+                        case PointTypes.LineLink:
+                        case PointTypes.PointLink:
+                        case PointTypes.Room:
+                        case PointTypes.SupplyPoint:
+                        case PointTypes.TN:
+                        case PointTypes.TT:
+                        case PointTypes.Meter:
                             continue;
-                        imageIndex = (int)row[3];
-                        if (imageIndex >= d.NodeTypes.Length)
-                            imageIndex = 0;
-                        currentNode = parentNode.Nodes.Add(row[0].ToString(),
-                            row[2].ToString(),
-                            d.NodeTypes[imageIndex],
-                            d.NodeTypes[imageIndex]);
-                        if (imageIndex == 10 || imageIndex == 9) // если этот узел - Присоединение или ОВ
+                    }
+                    if (parent!=null && parent.Nodes.ContainsKey(point.ID.ToString()))
+                        continue;
+                    if (imageIndexes.ContainsKey((int)point.Type))
+                        imageIndex = (int)imageIndexes[(int)point.Type];
+                    else
+                        imageIndex = 13;
+                    if (parent == null)
+                        currentNode = treePoints.Nodes.Add(point.ID.ToString(),
+                                                        point.Name.ToString(),
+                                                        imageIndex,
+                                                        imageIndex);
+                    else
+                        currentNode = parent.Nodes.Add(point.ID.ToString(),
+                                                       point.Name.ToString(),
+                                                       imageIndex,
+                                                       imageIndex);
+
+                    if (point.Type == PointTypes.Feeder || point.Type == PointTypes.FeederWithBypass) // если этот узел - Присоединение или ОВ
+                    {
+                        foreach (Parameter par in point.Parameters)
                         {
-                            parameters = d.GetParams(row[0].ToString());
-                            foreach (DataRow p in parameters.Rows)
-                            {
-                                currentNode.Nodes.Add("_" + p[0].ToString(), p[1].ToString(), 9, 9);
-                            }
-                        } // end of if (currentNode.ImageIndex == 6)
-                    } // end of foreach (DataRow row in points.Rows)
-                    Application.DoEvents();
-                } // end of foreach (int root in roots)
+                            currentNode.Nodes.Add("_" + par.Id,
+                                                    currentNode.Text + " (" + par.TypeName + ")",
+                                                    imageIndexes[(int)PointTypes.PointParameter],
+                                                    imageIndexes[(int)PointTypes.PointParameter]);
+                        }
+                    } // end of if (point.Type == PointTypes.Feeder || point.Type == PointTypes.FeederWithBypass)
+
+                } // end of foreach (Energosphere.Point point in children)
                 txtSelectedCount.Text = "0";
             } // end of try
             catch (Exception ex)

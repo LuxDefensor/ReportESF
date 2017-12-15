@@ -9,80 +9,7 @@ namespace ReportESF
 {
     static class Settings
     {
-        private static string fileName = "esf_report.ini";
-
-        /// <summary>
-        /// Checks whether the ini-file exists and if not
-        /// then this methods creates the file with default settings
-        /// </summary>
-        /// <returns></returns>
-        public static void CheckINIFile()
-        {
-            if (!File.Exists(fileName))
-            {
-                string[] lines = new string[4];
-                lines[0] = "server=localhost";
-                lines[1] = "database=askue_stavropolenergo";
-                lines[2] = "user=unknown";
-                lines[3] = "password=password";
-                lines[4] = "roots=1";
-                File.WriteAllLines(fileName, lines);
-            }
-        }
-
-        public static Dictionary<string, string> Entries
-        {
-            get
-            {
-                string[] lines = File.ReadAllLines(fileName);
-                Dictionary<string, string> s =
-                    lines.ToDictionary<string, string, string>(
-                        (string inp) => inp.Split('=')[0].Trim(),
-                        (string el) => el.Split('=')[1].Trim());
-                return s;
-            }
-        }
-
-        public static string GetSetting(string settingName)
-        {
-            var entries = Entries;
-            if (entries.ContainsKey(settingName))
-            {
-                return entries[settingName];
-            }
-            else
-            {
-                throw new Exception("Нет такого ключа в настройках: " + settingName);
-            }
-        }
-
-        public static void SaveSetting(string key, string value)
-        {
-            Dictionary<string, string> entries = Entries;
-            if (entries.ContainsKey(key))
-                entries[key] = value;
-            else
-            {
-                throw new Exception("Нет такого ключа в настройках: " + key);
-            }
-            SaveSettings(entries);
-        }
-
-        public static void SaveSettings(Dictionary<string, string> newSettings)
-        {
-            try
-            {
-                File.WriteAllLines(fileName, newSettings.Select(
-                    kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)).ToArray());
-            }
-            catch (Exception ex)
-            {
-                formError err = new formError("Ошибка при сохранении настроек в ini-файле",
-                    "Ошибка!", ErrorInfo(ex, "Settings.SaveSettings"));
-                err.ShowDialog();
-            }
-        }
-
+        public static readonly string SettingsFile = "esf_report.ini";
         public static string ErrorInfo(Exception ex, string place)
         {
             DateTime errorTime = DateTime.Now;
@@ -102,9 +29,9 @@ namespace ReportESF
             result.AppendLine();
             result.AppendLine(new string('=', 30));
             result.AppendLine("Error in " + place);
-            result.AppendLine(ex.Message);
+            result.AppendLine(ex?.Message);
             result.AppendLine(new string('=', 30));
-            result.AppendLine(ex.StackTrace);
+            result.AppendLine(ex?.StackTrace);
             return result.ToString();
         }
     }

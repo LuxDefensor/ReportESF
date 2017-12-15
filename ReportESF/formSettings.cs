@@ -7,16 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Settings;
 
 namespace ReportESF
 {
     public partial class formSettings : Form
     {
         private bool dirty = false;
+        private SettingsManager settings;
 
         public formSettings()
         {
             InitializeComponent();
+            settings = new SettingsManager(Settings.SettingsFile);
             this.Load += FormSettings_Load;
             btnClose.Click += BtnClose_Click;
             btnSave.Click += BtnSave_Click;
@@ -28,12 +31,10 @@ namespace ReportESF
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            Dictionary<string, string> settings = new Dictionary<string, string>();
             settings["server"] = txtServer.Text;
             settings["database"] = txtDatabase.Text;
             settings["user"] = txtUser.Text;
             settings["password"] = txtPassword.Text;
-            Settings.SaveSettings(settings);
             dirty = false;
         }
 
@@ -59,11 +60,10 @@ namespace ReportESF
 
         private void FormSettings_Load(object sender, EventArgs e)
         {
-            Dictionary<string, string> entries = Settings.Entries;
-            txtServer.Text = entries["server"];
-            txtDatabase.Text = entries["database"];
-            txtUser.Text = entries["user"];
-            txtPassword.Text = entries["password"];
+            txtServer.Text = settings["server"];
+            txtDatabase.Text = settings["database"];
+            txtUser.Text = settings["user"];
+            txtPassword.Text = settings["password"];
             dirty = false;
         }
     }
